@@ -2,9 +2,10 @@
   <div id="app">
     <div class="container">
       <div class="side-wrap">
-        <router-link to="/"><auto-scroll>首页</auto-scroll></router-link>
-        <router-link to="/page-genie"><auto-scroll>页面设计器</auto-scroll></router-link>
-        <router-link to="/about"><auto-scroll>关于</auto-scroll></router-link>
+          <router-link v-for="(navi, ind) in navis" :key="ind" :to="navi.path">
+            <svg-icon :iconClass="navi.icon"></svg-icon>
+            <auto-scroll>{{navi.caption}}</auto-scroll>
+          </router-link>
       </div>
       <div class="main-wrap">
         <router-view/>
@@ -18,6 +19,15 @@ import AutoScroll from '@/components/AutoScroll'
 export default {
   components: {
     AutoScroll
+  },
+  data() {
+    return {
+      navis: [
+        { icon: "navi-home", path: "/", caption: "首页" },
+        { icon: "navi-page", path: "/page-genie", caption: "页面设计器" },
+        { icon: "navi-about", path: "/about", caption: "关于" }
+      ]
+    }
   }
 }
 </script>
@@ -41,11 +51,11 @@ export default {
 .container {
   display: flex;
   .side-wrap {
-    width: 120px;
+    width: 100px;
     display: flex;
     flex-direction: column;
     background-color: #e7e7e7;
-    border-right: 1px solid #7bafdb;
+    border-right: 1px solid #989595;
     a {
       padding: 0.8rem;
       color: #333;
@@ -53,14 +63,22 @@ export default {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
-      transition: background-color .3s;
+      transition: color,background-color .3s;
+      display: flex;
+      align-items: center;
       &.router-link-exact-active {
           color: #0080eb;
-          background-color: #f0f0f0;
-          border-right: 5px solid #0080eb;
+          background-color: #f8f8f8 !important;
+          border-right: 5px solid #989595;
       }
       &:hover {
           color: #0080eb;
+          background-color: #f0f0f0;
+      }
+      .svg-icon {
+        width: 2rem;
+        height: 2rem;
+        margin-right: 0.5rem;
       }
     }
   }
