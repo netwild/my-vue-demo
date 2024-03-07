@@ -1,11 +1,8 @@
 <template>
   <div id="app">
     <div class="container">
-      <div class="side-wrap">
-          <router-link v-for="(navi, ind) in navis" :key="ind" :to="navi.path">
-            <svg-icon :iconClass="navi.icon"></svg-icon>
-            <auto-scroll>{{navi.caption}}</auto-scroll>
-          </router-link>
+      <div class="navi-wrap">
+        <main-navi></main-navi>
       </div>
       <div class="main-wrap">
         <router-view/>
@@ -15,19 +12,10 @@
 </template>
 
 <script>
-import AutoScroll from '@/components/AutoScroll'
+import MainNavi from '@/components/MainNavi'
 export default {
   components: {
-    AutoScroll
-  },
-  data() {
-    return {
-      navis: [
-        { icon: "navi-home", path: "/", caption: "首页" },
-        { icon: "navi-page", path: "/page-genie", caption: "页面设计器" },
-        { icon: "navi-about", path: "/about", caption: "关于" }
-      ]
-    }
+    MainNavi
   }
 }
 </script>
@@ -48,39 +36,12 @@ export default {
   width: 100%;
   height: 100%;
 }
+</style>
+<style scoped>
 .container {
   display: flex;
-  .side-wrap {
-    width: 100px;
-    display: flex;
-    flex-direction: column;
-    background-color: #e7e7e7;
-    border-right: 1px solid #989595;
-    a {
-      padding: 0.8rem;
-      color: #333;
-      text-decoration: none;
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-      transition: color,background-color .3s;
-      display: flex;
-      align-items: center;
-      &.router-link-exact-active {
-          color: #0080eb;
-          background-color: #f8f8f8 !important;
-          border-right: 5px solid #989595;
-      }
-      &:hover {
-          color: #0080eb;
-          background-color: #f0f0f0;
-      }
-      .svg-icon {
-        width: 2rem;
-        height: 2rem;
-        margin-right: 0.5rem;
-      }
-    }
+  .navi-wrap {
+    width: 150px;
   }
   .main-wrap {
     flex: 1;

@@ -10,30 +10,30 @@
 export default {
   name: 'AutoScroll',
   props: {},
-  data() {
+  data () {
     return {
       widthDiff: 0,
       scrollAble: false
     }
   },
   computed: {
-    aniVals() {
+    aniVals () {
       return {
         '--width-diff': `${this.widthDiff}px`,
         '--scroll-sec': `${-1.2 * this.widthDiff / 15}s`
       }
     }
   },
-  mounted() {
-    this.overflow();
+  mounted () {
+    this.overflow()
   },
   methods: {
-    overflow() {
+    overflow () {
       this.$nextTick(() => {
-        let widthDisplay = this.$refs.inner.clientWidth;
-        let widthReality = this.$refs.inner.scrollWidth;
-        this.widthDiff = widthDisplay - widthReality;
-        this.scrollAble = this.widthDiff < 0;
+        const widthDisplay = this.$refs.inner.clientWidth
+        const widthReality = this.$refs.inner.scrollWidth
+        this.widthDiff = widthDisplay - widthReality
+        this.scrollAble = this.widthDiff < 0
       })
     }
   }

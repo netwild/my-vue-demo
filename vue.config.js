@@ -1,15 +1,14 @@
 'use strict'
 const path = require('path')
-function resolve(dir) {
+function resolve (dir) {
   return path.join(__dirname, dir)
 }
 
-const { defineConfig } = require('@vue/cli-service')
-module.exports = defineConfig({
+module.exports = {
   publicPath: '/',
   assetsDir: 'assets',
   productionSourceMap: false,
-  chainWebpack(config) {
+  chainWebpack (config) {
     config.module
       .rule('svg')
       .exclude.add(resolve('src/assets/icons'))
@@ -25,5 +24,12 @@ module.exports = defineConfig({
         symbolId: 'icon-[name]'
       })
       .end()
+  },
+  css: {
+    loaderOptions: {
+      sass: {
+        additionalData: '@import "@/asset/style/main.scss";'
+      }
+    }
   }
-})
+}

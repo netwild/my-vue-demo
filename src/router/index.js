@@ -11,9 +11,9 @@ const routes = [
     component: HomeView
   },
   {
-    path: '/page-genie',
-    name: 'page-genie',
-    component: () => import(/* webpackChunkName: "page-genie" */ '@/views/PageGenie')
+    path: '/paged/design',
+    name: 'paged-design',
+    component: () => import(/* webpackChunkName: "paged-design" */ '@/views/paged/Design')
   },
   {
     path: '/about',
