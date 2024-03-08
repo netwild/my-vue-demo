@@ -3,7 +3,7 @@
 </template>
 
 <script>
-import PageGenie from '@/components/PageGenie/PageGenie'
+import PageGenie from '@/components/PageGenie'
 export default {
   components: { PageGenie }
 }

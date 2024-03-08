@@ -25,11 +25,12 @@ module.exports = {
       })
       .end()
   },
-  css: {
-    loaderOptions: {
-      sass: {
-        additionalData: '@import "@/asset/style/main.scss";'
-      }
-    }
-  }
+  // css: {
+  //   requireModuleExtension: false,
+  //   loaderOptions: {
+  //     sass: {
+  //       additionalData: '@import "@/assets/style/common.scss";'
+  //     }
+  //   }
+  // }
 }
