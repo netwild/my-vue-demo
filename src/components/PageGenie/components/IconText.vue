@@ -31,9 +31,11 @@ export default {
   display: flex;
   align-items: center;
   overflow: hidden;
+  transition: all .3s;
+  font-size: 1rem;
   .svg-icon {
     min-width: 1rem;
-    margin-right: 0.3rem;
+    margin-right: 0.2rem;
   }
   span {
     flex: 1;
@@ -57,12 +59,22 @@ export default {
   }
   /* 右上角导航按钮 */
   &.navi {
-    color: #fff;
-    .svg-icon {
-      font-size: 1.2rem;
+    color: rgba(255,255,255, .8);
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  /* 中间区域工具条按钮 */
+  &.tool {
+    color: #444;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  &:hover {
+    &.navi {
+      color: #fff;
     }
-    span {
-      font-size: 1rem;
+    &.tool {
+      color: #0080eb;
     }
   }
 }

@@ -28,12 +28,13 @@ export default {
 
 <style scoped>
 .page {
-  width: 150px;
+  width: 100%;
   display: flex;
   flex-direction: column;
   background-color: #161821;
   a {
-    padding: 0.8rem;
+    height: 50px;
+    padding: 0 0.8rem;
     color: #ddd;
     text-decoration: none;
     overflow: hidden;

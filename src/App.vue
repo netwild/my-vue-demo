@@ -28,7 +28,7 @@ export default {
 .container {
   display: flex;
   .navi-wrap {
-    width: 150px;
+    width: 10rem;
   }
   .main-wrap {
     flex: 1;

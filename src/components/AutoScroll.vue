@@ -46,15 +46,18 @@ export default {
   margin: 0;
   padding: 0;
   overflow: hidden;
+  display: flex;
+  align-items: center;
   .inner {
     width: 100%;
+    overflow: hidden;
     display: inline-block;
     white-space: nowrap;
-    overflow: hidden;
     text-overflow: ellipsis;
   }
   .scroll-able:hover {
       width: auto;
+      overflow: visible;
       text-overflow: revert;
       animation: inner-scroll var(--scroll-sec) linear infinite alternate;
   }
