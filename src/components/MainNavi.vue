@@ -44,11 +44,11 @@ export default {
     display: flex;
     align-items: center;
     &.router-link-exact-active {
-        color: #fff !important;
-        background: linear-gradient(to right, #0080eb, #003866) !important;
+      color: #fff !important;
+      background: linear-gradient(to right, #0080eb, #003866) !important;
     }
     &:hover {
-        color: #5ab5ff;
+      color: #5ab5ff;
     }
     .svg-icon {
       width: 2rem;

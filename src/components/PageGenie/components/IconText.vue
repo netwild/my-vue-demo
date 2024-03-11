@@ -1,5 +1,5 @@
 <template>
-  <div class="wrap" :class="theme">
+  <div class="icon-text-wrap" :class="theme">
     <svg-icon :iconClass="icon" v-if="icon" />
     <span>{{ text }}</span>
   </div>
@@ -27,7 +27,7 @@ export default {
 
 <style scoped>
 /* 默认样式 */
-.wrap {
+.icon-text-wrap {
   display: flex;
   align-items: center;
   overflow: hidden;
@@ -43,7 +43,7 @@ export default {
     white-space: nowrap;
     text-overflow: ellipsis;
   }
-  /* 标题样式 */
+  /* 主标题 */
   &.title {
     color: #fff;
     .svg-icon {
@@ -53,9 +53,14 @@ export default {
     span {
       font-size: 1.2rem;
       font-weight: bold;
-      margin-left: -2rem;
+      margin-left: -3rem;
       text-shadow: 0 0 3px rgba(0,0,0, .5);
     }
+  }
+  /* 侧边栏标题 */
+  &.side-title {
+    color: #666;
+    font-size: .9rem;
   }
   /* 右上角导航按钮 */
   &.navi {

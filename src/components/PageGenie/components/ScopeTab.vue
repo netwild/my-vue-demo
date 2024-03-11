@@ -42,6 +42,7 @@ export default {
   overflow: hidden;
   border-radius: 1rem;
   background-color: #0080eb;
+  box-shadow: 0 0 3px rgba(0,0,0, .3) inset;
   padding: 0 0.3rem;
   margin-left: 0.6rem;
   margin-right: 1rem;
@@ -53,6 +54,7 @@ export default {
     transition: color .3s;
     position: relative;
     min-width: 3rem;
+    line-height: 1.4;
     &.active {
       color: #fff;
       &::after {

@@ -25,11 +25,11 @@ export default {
     },
     min: {
       type: Number,
-      default: 0
+      default: null
     },
     max: {
       type: Number,
-      default: 500
+      default: null
     }
   },
   data () {
@@ -43,6 +43,7 @@ export default {
     dynamicStyle () {
       const stys = {}
       stys[this.mode] = this.pos + 'px'
+      stys.cursor = this.dir === 'h' ? 'ew-resize' : 'ns-resize'
       return stys
     }
   },
@@ -65,8 +66,8 @@ export default {
       let diff = event[this.dir === 'h' ? 'clientX' : 'clientY'] - this.startAt
       if (this.mode === 'right' || this.mode === 'bottom') diff *= -1
       let newPos = this.startPos + diff
-      if (newPos < this.min) newPos = this.min
-      if (newPos > this.max) newPos = this.max
+      if (this.min !== null && newPos < this.min) newPos = this.min
+      if (this.max !== null && newPos > this.max) newPos = this.max
       this.$emit('drag', newPos)
     },
     onMouseUp () {
@@ -79,7 +80,6 @@ export default {
 <style scoped>
 .drag-handle {
   position: absolute;
-  cursor: ew-resize;
   background-color: #b3d9f9;
   .inner {
     width: 100%;
