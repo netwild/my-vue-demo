@@ -32,7 +32,7 @@
       position: relative;
       .comp-box-container {
         flex: 1;
-        padding-top: 8px;
+        padding-top: 9px;
       }
     }
     .side-box {
@@ -51,6 +51,18 @@
           align-items: center;
           background-color: #F2F2F2;
           border-bottom: 1px solid #CECECE;
+          .tool-box {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            overflow: hidden;
+            .svg-icon {
+              cursor: pointer;
+              &:not(:first-child) {
+                margin-left: 0.2rem;
+              }
+            }
+          }
         }
         .body {
           flex: 1;
@@ -90,8 +102,8 @@
     .main-body-wrap {
       flex: 1;
       background-color: #e2edf6;
-      box-shadow: 0 0 3px rgba(0,0,0, .5) inset;
-      margin: 0 8px;
+      box-shadow: 0 0 3px #647582 inset;
+      margin: 0 9px;
     }
   }
   .router-link-active {

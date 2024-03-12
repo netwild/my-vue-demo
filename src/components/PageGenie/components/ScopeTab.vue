@@ -55,16 +55,21 @@ export default {
     position: relative;
     min-width: 3rem;
     line-height: 1.4;
+    &::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 50%;
+      width: 0%;
+      height: 2px;
+      background: #fff;
+      transition: all .3s;
+    }
     &.active {
       color: #fff;
       &::after {
-        content: '';
-        position: absolute;
-        left: 25%;
-        bottom: 0;
-        width: 50%;
-        height: 2px;
-        background: #fff;
+        left: 30%;
+        width: 40%;
       }
     }
   }

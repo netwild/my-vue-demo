@@ -82,5 +82,5 @@ export default {
 </script>
 
 <style scoped>
-@import "./index.scss";
+@import "./index.css";
 </style>

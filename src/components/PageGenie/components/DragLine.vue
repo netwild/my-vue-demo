@@ -1,9 +1,7 @@
 <template>
   <div class="drag-handle" ref="dragHandle" :class="dir" :style="dynamicStyle"
-  @mousedown="onMouseDown">
-    <div class="inner">
-      <div class="line"></div>
-    </div>
+    @mousedown="onMouseDown">
+    <div class="line"></div>
   </div>
 </template>
 
@@ -81,32 +79,33 @@ export default {
 .drag-handle {
   position: absolute;
   background-color: #b3d9f9;
-  .inner {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    .line {
-      border-radius: 2px;
-      border: 1px solid rgba(255,255,255, .5);
-      background-color: #97c0e2;
-    }
+  display: flex;
+  .line {
+    border-style: double;
+    border-color: #9cc0de;
+    transition: all .3s;
+  }
+  &:hover .line {
+    border-color: #61829d;
   }
   &.h {
-    width: 8px;
+    width: 9px;
     height: 100%;
+    align-items: center;
     .line {
-      width: 4px;
+      width: 6px;
       height: 60px;
+      border-width: 0 3px 0 0;
     }
   }
   &.v {
     width: 100%;
-    height: 8px;
+    height: 9px;
+    justify-content: center;
     .line {
       width: 60px;
-      height: 4px;
+      height: 6px;
+      border-width: 0 0 3px 0;
     }
   }
 }
