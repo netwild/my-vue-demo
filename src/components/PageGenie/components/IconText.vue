@@ -42,6 +42,7 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
+    line-height: 1;
   }
   /* 主标题 */
   &.title {

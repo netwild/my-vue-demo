@@ -7,13 +7,13 @@
         <div class="item" :class="{ active : propActive == 'style' }" @click="propActive = 'style'">样式</div>
       </div>
     </div>
-    <div class="body" v-show="propActive == 'prop'">
+    <div class="body" key="prop" v-show="propActive == 'prop'">
       组件属性
     </div>
-    <div class="body" v-show="propActive == 'theme'">
+    <div class="body" key="theme" v-show="propActive == 'theme'">
       组件风格
     </div>
-    <div class="body" v-show="propActive == 'style'">
+    <div class="body" key="style" v-show="propActive == 'style'">
       组件样式
     </div>
   </div>
