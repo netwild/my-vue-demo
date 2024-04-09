@@ -3,13 +3,18 @@
     <div class="header">
       <icon-text icon="paged-struct" text="页面结构" theme="side-title" />
       <div class="tool-box">
-        <svg-icon iconClass="paged-expand" title="全部展开" @click="setExpandAll(true)" />
-        <svg-icon iconClass="paged-collapse" title="全部折叠" @click="setExpandAll(false)" />
+        <svg-icon icon-class="paged-expand" title="全部展开" @click="setExpandAll(true)" />
+        <svg-icon icon-class="paged-collapse" title="全部折叠" @click="setExpandAll(false)" />
       </div>
     </div>
     <div class="body">
-      <el-tree ref="tree" node-key="id" :data="treeData" :props="treeProps"
-      @node-click="handleNodeClick"></el-tree>
+      <el-tree
+        ref="tree"
+        node-key="id"
+        :data="treeData"
+        :props="treeProps"
+        @node-click="handleNodeClick"
+      />
     </div>
   </div>
 </template>
@@ -18,16 +23,16 @@
 import IconText from './IconText'
 export default {
   name: 'PageStruct',
+  components: {
+    IconText
+  },
   props: {
     scope: {
       type: String,
       default: 'common'
     }
   },
-  components: {
-    IconText
-  },
-  data () {
+  data() {
     return {
       treeData: [
         {
@@ -73,10 +78,10 @@ export default {
     }
   },
   methods: {
-    handleNodeClick (data) {
+    handleNodeClick(data) {
       console.log(data)
     },
-    setExpandAll (state) {
+    setExpandAll(state) {
       var nodes = this.$refs.tree.store.nodesMap
       for (var i in nodes) {
         nodes[i].expanded = state
@@ -87,4 +92,7 @@ export default {
 </script>
 
 <style scoped>
+.body {
+  padding: .5rem;
+}
 </style>

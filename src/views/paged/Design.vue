@@ -1,5 +1,5 @@
 <template>
-  <page-genie></page-genie>
+  <page-genie />
 </template>
 
 <script>

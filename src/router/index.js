@@ -16,6 +16,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "paged-design" */ '@/views/paged/Design')
   },
   {
+    path: '/datad/tools',
+    name: 'datad-tools',
+    component: () => import(/* webpackChunkName: "datad-tools" */ '@/views/datad/Tools')
+  },
+  {
     path: '/about',
     name: 'about',
     component: () => import(/* webpackChunkName: "about" */ '@/views/AboutView')

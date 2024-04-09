@@ -1,7 +1,6 @@
 <template>
-  <div class="drag-handle" ref="dragHandle" :class="dir" :style="dynamicStyle"
-    @mousedown="onMouseDown">
-    <div class="line"></div>
+  <div ref="dragHandle" class="drag-handle" :class="dir" :style="dynamicStyle" @mousedown="onMouseDown">
+    <div class="line" />
   </div>
 </template>
 
@@ -30,7 +29,7 @@ export default {
       default: null
     }
   },
-  data () {
+  data() {
     return {
       dragging: false,
       startAt: 0,
@@ -38,14 +37,14 @@ export default {
     }
   },
   computed: {
-    dynamicStyle () {
+    dynamicStyle() {
       const stys = {}
       stys[this.mode] = this.pos + 'px'
       stys.cursor = this.dir === 'h' ? 'ew-resize' : 'ns-resize'
       return stys
     }
   },
-  mounted () {
+  mounted() {
     window.addEventListener('mousemove', this.onMouseMove)
     window.addEventListener('mouseup', this.onMouseUp)
     this.$once('hook:beforeDestroy', () => {
@@ -54,12 +53,12 @@ export default {
     })
   },
   methods: {
-    onMouseDown (event) {
+    onMouseDown(event) {
       this.dragging = true
       this.startAt = event[this.dir === 'h' ? 'clientX' : 'clientY']
       this.startPos = parseInt(this.$refs.dragHandle.style[this.mode])
     },
-    onMouseMove (event) {
+    onMouseMove(event) {
       if (!this.dragging) return
       let diff = event[this.dir === 'h' ? 'clientX' : 'clientY'] - this.startAt
       if (this.mode === 'right' || this.mode === 'bottom') diff *= -1
@@ -68,7 +67,7 @@ export default {
       if (this.max !== null && newPos > this.max) newPos = this.max
       this.$emit('drag', newPos)
     },
-    onMouseUp () {
+    onMouseUp() {
       this.dragging = false
     }
   }

@@ -1,7 +1,7 @@
 <template>
   <div class="scope-tab">
     <template v-for="item in scopeList">
-      <div class="scope-item" :class="{ active: item.key == current }" :key="item.key" @click="scopeTabChg(item.key)">
+      <div :key="item.key" class="scope-item" :class="{ active: item.key == current }" @click="scopeTabChg(item.key)">
         {{ item.name }}
       </div>
     </template>
@@ -17,7 +17,7 @@ export default {
       default: 'common'
     }
   },
-  data () {
+  data() {
     return {
       scopeList: [
         { key: 'common', name: '通用' },
@@ -28,7 +28,7 @@ export default {
     }
   },
   methods: {
-    scopeTabChg (curr) {
+    scopeTabChg(curr) {
       this.$emit('scopeTabChg', curr)
     }
   }
@@ -44,8 +44,6 @@ export default {
   background-color: #0080eb;
   box-shadow: 0 0 3px rgba(0,0,0, .3) inset;
   padding: 0 0.3rem;
-  margin-left: 0.6rem;
-  margin-right: 1rem;
   .scope-item {
     cursor: pointer;
     font-size: 0.9rem;

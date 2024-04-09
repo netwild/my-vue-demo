@@ -1,6 +1,6 @@
 <template>
-  <div class="icon-text-wrap" :class="theme">
-    <svg-icon :iconClass="icon" v-if="icon" />
+  <div class="icon-text-wrap" :class="[ theme, active ? 'active' : '' ]" @click="event">
+    <svg-icon v-if="icon" :icon-class="icon" />
     <span>{{ text }}</span>
   </div>
 </template>
@@ -17,9 +17,18 @@ export default {
       type: [String, Number],
       default: ''
     },
+    active: {
+      type: Boolean,
+      default: false
+    },
     theme: {
       type: String,
       default: ''
+    }
+  },
+  methods: {
+    event() {
+      this.$emit('click')
     }
   }
 }
@@ -61,19 +70,42 @@ export default {
   /* 侧边栏标题 */
   &.side-title {
     color: #666;
-    font-size: .9rem;
+    .svg-icon {
+      font-size: 1rem;
+    }
+    span {
+      font-size: .9rem;
+      line-height: 1rem;
+    }
   }
   /* 右上角导航按钮 */
   &.navi {
     color: rgba(255,255,255, .8);
     cursor: pointer;
-    font-size: 0.9rem;
+    .svg-icon {
+      font-size: 1rem;
+    }
+    span {
+      font-size: .9rem;
+      line-height: 1rem;
+    }
   }
   /* 中间区域工具条按钮 */
   &.tool {
     color: #444;
     cursor: pointer;
-    font-size: 0.9rem;
+    .svg-icon {
+      font-size: 1rem;
+    }
+    span {
+      font-size: .9rem;
+      line-height: 1rem;
+    }
+  }
+  &.active {
+    &.tool {
+      color: #0080eb;
+    }
   }
   &:hover {
     &.navi {

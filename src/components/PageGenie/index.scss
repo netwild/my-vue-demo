@@ -1,0 +1,175 @@
+.paged {
+  cursor: default;
+  display: flex;
+  user-select: none;
+  .header-wrap {
+    height: 50px;
+    min-height: 50px;
+    position: relative;
+    display: flex;
+    align-items: center;
+    background-color: #0080eb;
+    color: #fff;
+    overflow: hidden;
+    z-index: 9;
+  }
+  .side-wrap {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+    &.side-right-wrap {
+      .side-header-wrap {
+        justify-content: end;
+        > * {
+          margin-right: 1rem;
+        }
+      }
+    }
+    .side-body-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      overflow: hidden;
+      .comp-box-container {
+        flex: 1;
+        padding-top: 9px;
+      }
+    }
+    .side-box {
+      overflow: hidden;
+      ::v-deep .side-box-wrap {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        .header {
+          height: 40px;
+          min-height: 40px;
+          padding: 0 .6rem;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          background-color: #F2F2F2;
+          border-bottom: 1px solid #CECECE;
+          .tool-box {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            overflow: hidden;
+            .svg-icon {
+              cursor: pointer;
+              color: #999;
+              transition: color .3s;
+              &:not(:first-child) {
+                margin-left: 0.5rem;
+              }
+              &:hover {
+                color: #333;
+              }
+            }
+          }
+        }
+        .body {
+          flex: 1;
+          overflow: auto;
+          font-size: .9rem;
+        }
+      }
+    }
+  }
+  .main-wrap {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    .main-header-wrap {
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      .main-header-inner {
+        width: 100%;
+        height: 40px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-top-left-radius: 20px;
+        border-top-right-radius: 20px;
+        border-width: 1px 1px 0 1px;
+        border-style: solid;
+        border-color: rgba(255,255,255, .5);
+        background-color: rgba(255,255,255, .7);
+        .left-tools-bar {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          > * {
+            margin-left: 1rem;
+          }
+        }
+        .center-tools-bar {
+          display: flex;
+          align-items: center;
+        }
+        .right-tools-bar {
+          flex: 1;
+          display: flex;
+          align-items: center;
+          justify-content: flex-end;
+          > * {
+            margin-right: 1rem;
+          }
+        }
+      }
+    }
+    .main-body-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      margin: 0 10px;
+      overflow: hidden;
+      background: repeating-linear-gradient(135deg, #F2F2F2, #F2F2F2 10px, #eee 0, #eee 20px);
+      position: relative;
+      .main-tab-container {
+        border: 1px solid rgba(255,255,255, .5);
+        padding-bottom: 9px;
+        background-color: #fff;
+        box-shadow: 0 0 3px #647582 inset;
+        overflow: hidden;
+        .main-tab-wrap {
+          width: 100%;
+          height: 100%;
+          padding: .5rem;
+        }
+      }
+      .main-body {
+        flex: 1;
+        position: relative;
+        width: 100%;
+        height: 100%;
+        padding: 1px;
+        box-shadow: 0 0 3px #647582 inset;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        .stage-size-monitor {
+          position: absolute;
+          right: 1rem;
+          bottom: 1rem;
+          font-size: .9rem;
+          background: rgba(255,255,255, .5);
+          border: 1px solid #ddd;
+          color: #999;
+          border-radius: 1rem;
+          padding: .3rem .6rem .2rem .6rem;
+          line-height: 1;
+          white-space: nowrap;
+          box-shadow: 0 0 1rem rgba(0,0,0, .1);
+        }
+      }
+    }
+  }
+  .router-link-active {
+    text-decoration: none;
+  }
+}

@@ -1,8 +1,8 @@
 <template>
   <div class="page">
     <router-link v-for="(navi, ind) in navis" :key="ind" :to="navi.path">
-      <svg-icon :iconClass="navi.icon"></svg-icon>
-      <auto-scroll>{{navi.caption}}</auto-scroll>
+      <svg-icon :icon-class="navi.icon" />
+      <auto-scroll>{{ navi.caption }}</auto-scroll>
     </router-link>
   </div>
 </template>
@@ -14,11 +14,12 @@ export default {
   components: {
     AutoScroll
   },
-  data () {
+  data() {
     return {
       navis: [
         { icon: 'navi-home', path: '/', caption: '首页' },
         { icon: 'navi-page', path: '/paged/design', caption: '页面设计器' },
+        { icon: 'paged-db', path: '/datad/tools', caption: '数据集设计器' },
         { icon: 'navi-about', path: '/about', caption: '关于' }
       ]
     }
@@ -40,7 +41,7 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis;
-    transition: color,background .3s;
+    transition: color, background 0.3s;
     display: flex;
     align-items: center;
     &.router-link-exact-active {
@@ -51,8 +52,9 @@ export default {
       color: #5ab5ff;
     }
     .svg-icon {
-      width: 2rem;
-      height: 2rem;
+      width: 1.3rem;
+      height: 1.3rem;
+      min-width: 1.3rem;
       margin-right: 0.5rem;
     }
   }

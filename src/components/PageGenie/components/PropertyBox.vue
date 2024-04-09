@@ -4,17 +4,17 @@
       <div class="prop-tab-wrap">
         <div class="item" :class="{ active : propActive == 'prop' }" @click="propActive = 'prop'">属性</div>
         <div class="item" :class="{ active : propActive == 'theme' }" @click="propActive = 'theme'">风格</div>
-        <div class="item" :class="{ active : propActive == 'style' }" @click="propActive = 'style'">样式</div>
+        <div class="item" :class="{ active : propActive == 'event' }" @click="propActive = 'event'">交互</div>
       </div>
     </div>
-    <div class="body" key="prop" v-show="propActive == 'prop'">
+    <div v-show="propActive == 'prop'" key="prop" class="body">
       组件属性
     </div>
-    <div class="body" key="theme" v-show="propActive == 'theme'">
+    <div v-show="propActive == 'theme'" key="theme" class="body">
       组件风格
     </div>
-    <div class="body" key="style" v-show="propActive == 'style'">
-      组件样式
+    <div v-show="propActive == 'event'" key="event" class="body">
+      组件动作
     </div>
   </div>
 </template>
@@ -28,7 +28,7 @@ export default {
       default: 'common'
     }
   },
-  data () {
+  data() {
     return {
       propActive: 'prop' // prop / theme / style
     }
@@ -73,5 +73,8 @@ export default {
       }
     }
   }
+}
+.body {
+  padding: .5rem;
 }
 </style>

@@ -5,7 +5,7 @@ function resolve (dir) {
 }
 
 module.exports = {
-  publicPath: '/',
+  publicPath: '/page-genie/',
   assetsDir: 'assets',
   productionSourceMap: false,
   chainWebpack (config) {
@@ -25,12 +25,20 @@ module.exports = {
       })
       .end()
   },
-  // css: {
-  //   requireModuleExtension: false,
-  //   loaderOptions: {
-  //     sass: {
-  //       additionalData: '@import "@/assets/style/common.scss";'
-  //     }
-  //   }
-  // }
+  configureWebpack: {
+    module: {
+      rules: [
+        {
+          test: /\.ya?ml$/,
+          use: 'yaml-loader',
+        },
+      ],
+    }
+  },
+  css: {
+    extract: {
+      filename: 'assets/css/[name].css',
+      chunkFilename: 'assets/css/[name].css'
+    }
+  }
 }

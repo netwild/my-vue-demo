@@ -1,6 +1,6 @@
 <template>
   <div class="wrap" :style="aniVals">
-    <div class="inner" ref="inner" :class="{ 'scroll-able': scrollAble }">
+    <div ref="inner" class="inner" :class="{ 'scroll-able': scrollAble }">
       <slot />
     </div>
   </div>
@@ -10,25 +10,25 @@
 export default {
   name: 'AutoScroll',
   props: {},
-  data () {
+  data() {
     return {
       widthDiff: 0,
       scrollAble: false
     }
   },
   computed: {
-    aniVals () {
+    aniVals() {
       return {
         '--width-diff': `${this.widthDiff}px`,
         '--scroll-sec': `${-1.2 * this.widthDiff / 15}s`
       }
     }
   },
-  mounted () {
+  mounted() {
     this.overflow()
   },
   methods: {
-    overflow () {
+    overflow() {
       this.$nextTick(() => {
         const widthDisplay = this.$refs.inner.clientWidth
         const widthReality = this.$refs.inner.scrollWidth

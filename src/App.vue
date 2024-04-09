@@ -2,10 +2,10 @@
   <div id="app">
     <div class="container">
       <div class="navi-wrap">
-        <main-navi></main-navi>
+        <main-navi />
       </div>
       <div class="main-wrap">
-        <router-view/>
+        <router-view />
       </div>
     </div>
   </div>
@@ -21,14 +21,14 @@ export default {
 </script>
 
 <style lang="scss">
-@import "@/assets/style/common.scss";
+@import '@/assets/style/common.scss';
 </style>
 
 <style scoped>
 .container {
   display: flex;
   .navi-wrap {
-    width: 10rem;
+    width: 3rem;
   }
   .main-wrap {
     flex: 1;
