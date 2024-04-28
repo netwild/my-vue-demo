@@ -200,6 +200,10 @@ export default {
     onCreate(evt, src) {
       const ins = this.deepClone(src)
       ins.base.id = uuidv4()
+      ins.props.gridx = 1
+      ins.props.gridy = 1
+      ins.props.gridw = 6
+      ins.props.gridh = 4
       this.dragging = true
       this.selCurrIns = ins
       this.selCurrInd = null
@@ -243,7 +247,7 @@ export default {
     onDragOver(evt, type) {
       evt.target.classList.add('dragging-over')
       this.placeholder(evt, type)
-      console.log(`在区域内移动：${type}`)
+      // console.log(`在区域内移动：${type}`)
     },
     onDrop(evt, type) {
       evt.stopPropagation()
@@ -258,13 +262,37 @@ export default {
     placeholder(evt, type) {
       const insData = this.insList[type]
       const holderStyle = this.holderList[type]
-      if (this.selInOrOut === 'out') {
-        if (insData.length === 0) {
-          holderStyle['grid-column'] = '1 / span 8'
-          holderStyle['grid-row'] = '1 / span 6'
-        }
-      } else {
-      }
+      const props = this.selCurrIns.props
+      holderStyle['grid-column'] = `${props.gridx} / span ${props.gridw}`
+      holderStyle['grid-row'] = `${props.gridy} / span ${props.gridh}`
+
+      // 获取容器的偏移量
+      var containerOffsetLeft = evt.target.offsetLeft
+      var containerOffsetTop = evt.target.offsetTop
+
+      // 获取鼠标位置
+      var mouseX = evt.clientX
+      var mouseY = evt.clientY
+
+      // 计算鼠标相对于容器的偏移量
+      var offsetX = mouseX - containerOffsetLeft
+      var offsetY = mouseY - containerOffsetTop
+      console.log(
+        '鼠标进入目标元素时的偏移量：',
+        containerOffsetLeft,
+        containerOffsetTop,
+        offsetX,
+        offsetY
+      )
+      holderStyle['transform'] = 'translate(' + offsetX + 'px,' + offsetY + 'px)'
+
+      // if (this.selInOrOut === 'out') {
+      //   if (insData.length === 0) {
+      //     holderStyle['grid-column'] = '1 / span 6'
+      //     holderStyle['grid-row'] = '1 / span 4'
+      //   }
+      // } else {
+      // }
     }
   }
 }
@@ -326,6 +354,17 @@ body {
           align-items: center;
           overflow: hidden;
         }
+        .draggable-holder {
+          background-color: rgba(104, 196, 124, 0.2);
+          flex: 1;
+          z-index: 999;
+        }
+        &.dragging-over {
+          background-color: rgba(147, 254, 170, 0.1);
+          .draggable-item {
+            pointer-events: none;
+          }
+        }
       }
       &.layout-normal {
         height: 30%;
@@ -341,15 +380,6 @@ body {
       }
       &.layout-custom {
         height: 70%;
-        .draggable-wrap.dragging-over {
-          background-color: rgba(147, 254, 170, 0.1);
-          .draggable-item {
-            pointer-events: none;
-          }
-        }
-        .draggable-holder {
-          background-color: rgba(104, 196, 124, 0.2);
-        }
       }
       &.layout-flex .draggable-wrap {
         padding: 15px;
