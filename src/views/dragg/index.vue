@@ -138,7 +138,10 @@ export default {
         custom: {
           display: 'none',
           'grid-column': null,
-          'grid-row': null
+          'grid-row': null,
+          left: '0px',
+          top: '0px',
+          transform: 'translate(0px,0px)'
         }
       },
       dragging: false,
@@ -284,7 +287,11 @@ export default {
         offsetX,
         offsetY
       )
-      holderStyle['transform'] = 'translate(' + offsetX + 'px,' + offsetY + 'px)'
+
+      // holderStyle['left'] = offsetX + 'px'
+      // holderStyle['top'] = offsetY + 'px'
+
+      holderStyle['transform'] = `translate(${offsetX}px, ${offsetY}px)`
 
       // if (this.selInOrOut === 'out') {
       //   if (insData.length === 0) {
@@ -299,121 +306,5 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-body {
-  height: 100%;
-}
-.container-wrap {
-  height: 100%;
-  display: flex;
-  .src-wrap {
-    width: 200px;
-    height: 100%;
-    border-right: 1px solid #999;
-    padding: 0 15px;
-    .item-wrap {
-      margin-top: 15px;
-      padding: 20px 0;
-      text-align: center;
-      background-color: #cccccc;
-      font-size: 14px;
-      cursor: default;
-    }
-  }
-  .ins-wraps {
-    flex: 1;
-    height: 100%;
-    padding: 15px;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-    .ins-wrap {
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
-      .wrap-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        height: 30px;
-        line-height: 30px;
-        h5 {
-          margin: 0;
-        }
-      }
-      .draggable-wrap {
-        flex: 1;
-        border: 1px solid #999;
-        background-color: rgba(150, 150, 150, 0.1);
-        overflow: hidden auto;
-        position: relative;
-        .draggable-item {
-          padding: 15px;
-          background-color: #ccc;
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          overflow: hidden;
-        }
-        .draggable-holder {
-          background-color: rgba(104, 196, 124, 0.2);
-          flex: 1;
-          z-index: 999;
-        }
-        &.dragging-over {
-          background-color: rgba(147, 254, 170, 0.1);
-          .draggable-item {
-            pointer-events: none;
-          }
-        }
-      }
-      &.layout-normal {
-        height: 30%;
-        .draggable-wrap {
-          padding: 15px;
-          .draggable-item {
-            display: inline-block;
-            &:not(:first-child) {
-              margin-left: 15px;
-            }
-          }
-        }
-      }
-      &.layout-custom {
-        height: 70%;
-      }
-      &.layout-flex .draggable-wrap {
-        padding: 15px;
-        display: flex;
-        justify-content: space-between;
-        .draggable-item {
-          flex: 1;
-          &:not(:first-child) {
-            margin-left: 15px;
-          }
-        }
-      }
-      &.layout-grid .draggable-wrap {
-        display: grid;
-        gap: var(--grid-padd);
-        grid-template-columns: repeat(var(--grid-cols), 1fr);
-        grid-template-rows: repeat(var(--grid-rows), 1fr);
-        &::before {
-          content: '';
-          position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          z-index: -1;
-          pointer-events: none;
-          border-right: 1px solid #e0e0e0;
-          border-bottom: 1px solid #e0e0e0;
-          background-size: var(--col-width) var(--row-height);
-          background-image: linear-gradient(to right, #e0e0e0 1px, transparent 1px),
-            linear-gradient(to bottom, #e0e0e0 1px, transparent 1px);
-        }
-      }
-    }
-  }
-}
+@import url('./dragg.css');
 </style>
