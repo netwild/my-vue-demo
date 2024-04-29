@@ -19,10 +19,12 @@
         </div>
         <div
           class="draggable-wrap"
+          :class="[dragging['normal'] ? 'dragging-on' : 'dragging-off']"
           @dragenter.prevent="onDragEnter($event, 'normal')"
           @dragover.prevent="onDragOver($event, 'normal')"
           @dragleave.prevent="onDragLeave($event, 'normal')"
           @drop.prevent="onDrop($event, 'normal')"
+          :style="layoutStyle"
         >
           <div
             class="draggable-item"
@@ -49,11 +51,12 @@
         <div
           ref="gridContainer"
           class="draggable-wrap"
+          :class="[dragging['custom'] ? 'dragging-on' : 'dragging-off']"
           @dragenter.self.prevent="onDragEnter($event, 'custom')"
           @dragover.self.prevent="onDragOver($event, 'custom')"
           @dragleave.self.prevent="onDragLeave($event, 'custom')"
           @drop.self.prevent="onDrop($event, 'custom')"
-          :style="styles"
+          :style="layoutStyle"
         >
           <div
             class="draggable-item"
@@ -73,7 +76,14 @@
           >
             {{ item.base.name }}
           </div>
-          <div class="draggable-item draggable-holder" :style="holderList['custom']"></div>
+          <div
+            class="draggable-item draggable-holder"
+            :class="[holder.used ? 'holder-use' : 'holder-dis']"
+            :style="{
+              'grid-column': `${holder.gridx} / span ${holder.gridw}`,
+              'grid-row': `${holder.gridy} / span ${holder.gridh}`
+            }"
+          ></div>
         </div>
       </div>
     </div>
@@ -126,52 +136,43 @@ export default {
           props: {}
         }
       ],
-      layoutMode: 'grid',
       insList: {
         normal: [],
         custom: []
       },
-      holderList: {
-        normal: {
-          display: 'none'
-        },
-        custom: {
-          display: 'none',
-          'grid-column': null,
-          'grid-row': null,
-          left: '0px',
-          top: '0px',
-          transform: 'translate(0px,0px)'
-        }
-      },
-      dragging: false,
+      erd: null,
+      layoutWidth: 0,
+      layoutHeight: 0,
+      layoutOrigin: [0, 0],
+      layoutMode: 'grid',
+      rowNum: 12,
+      colNum: 24,
+      padding: 10,
+      rowsDef: 6,
+      colsDef: 6,
       selCurrIns: null,
       selCurrInd: null,
       selCurrPar: null,
-      selInOrOut: null,
-      containerWidth: 0,
-      containerHeight: 0,
-      padding: 5,
-      rowNum: 12,
-      colNum: 24,
-      erd: null,
-      groupSrc: {
-        name: 'dragWrap',
-        pull: 'clone',
-        put: false
+      dragging: {
+        normal: false,
+        custom: false
       },
-      groupIns: {
-        name: 'dragWrap',
-        pull: false,
-        put: true
+      holder: {
+        displayCache: null,
+        used: true,
+        gridx: 1,
+        gridy: 1,
+        gridw: 1,
+        gridh: 1
       }
     }
   },
   mounted() {
     this.erd = elementResizeDetectorMaker()
     this.erd.listenTo(this.$refs.gridContainer, element => {
-      this.containerWidth = element.offsetWidth
-      this.containerHeight = element.offsetHeight
+      this.layoutWidth = element.offsetWidth
+      this.layoutHeight = element.offsetHeight
+      this.layoutOrigin = [element.offsetLeft, element.offsetTop]
     })
   },
   beforeDestroy() {
@@ -181,12 +182,12 @@ export default {
   },
   computed: {
     colWidth() {
-      return parseFloat(this.containerWidth / this.colNum).toFixed(3)
+      return parseFloat(this.layoutWidth / this.colNum).toFixed(3)
     },
     rowHeight() {
-      return parseFloat(this.containerHeight / this.rowNum).toFixed(3)
+      return parseFloat(this.layoutHeight / this.rowNum).toFixed(3)
     },
-    styles() {
+    layoutStyle() {
       return {
         '--col-width': this.colWidth + 'px',
         '--row-height': this.rowHeight + 'px',
@@ -194,6 +195,21 @@ export default {
         '--grid-cols': this.colNum,
         '--grid-rows': this.rowNum
       }
+    },
+    gridNodeUseful() {
+      let map = Array(this.rowNum)
+        .fill()
+        .map(() => Array(this.colNum).fill(0))
+      this.insList['custom'].forEach(ins => {
+        for (let y = 0; y < ins.props.gridh; y++) {
+          map[ins.props.gridy + y - 1].fill(
+            1,
+            ins.props.gridx - 1,
+            ins.props.gridx + ins.props.gridw - 1
+          )
+        }
+      })
+      return map
     }
   },
   methods: {
@@ -205,101 +221,146 @@ export default {
       ins.base.id = uuidv4()
       ins.props.gridx = 1
       ins.props.gridy = 1
-      ins.props.gridw = 6
-      ins.props.gridh = 4
-      this.dragging = true
+      ins.props.gridw = this.colsDef
+      ins.props.gridh = this.rowsDef
       this.selCurrIns = ins
       this.selCurrInd = null
       this.selCurrPar = null
-      this.selInOrOut = 'out'
       evt.dataTransfer.effectAllowed = 'copy'
       console.log('创建新实例')
     },
     onDragStart(evt, ins, ind, type) {
-      this.dragging = true
       this.selCurrIns = ins
       this.selCurrInd = ind
       this.selCurrPar = type
-      this.selInOrOut = 'in'
       evt.dataTransfer.effectAllowed = 'move'
       var img = new Image()
       img.src =
         "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' %3E%3Cpath /%3E%3C/svg%3E"
       evt.dataTransfer.setDragImage(img, 0, 0)
+      this.holder.displayCache = evt.target.style.display
+      setTimeout(() => {
+        evt.target.style.display = 'none'
+      }, 0)
       console.log('开始拖拽')
     },
     onDragEnd(evt) {
-      this.dragging = false
       this.selCurrIns = null
       this.selCurrInd = null
       this.selCurrPar = null
       this.selInOrOut = null
+      evt.target.style.display = this.holder.displayCache
       console.log('停止拖拽')
+      console.log(this.gridNodeUseful)
     },
     onDragEnter(evt, type) {
-      console.log(evt)
-      evt.target.classList.add('dragging-over')
-      this.holderList[type].display = 'block'
+      this.dragging[type] = true
       console.log(`进入区域：${type}`)
     },
     onDragLeave(evt, type) {
-      evt.target.classList.remove('dragging-over')
-      this.holderList[type].display = 'none'
+      this.dragging[type] = false
+      this.holder.used = true
       console.log(`离开区域：${type}`)
     },
     onDragOver(evt, type) {
-      evt.target.classList.add('dragging-over')
       this.placeholder(evt, type)
       // console.log(`在区域内移动：${type}`)
     },
+    placeholder(evt, type) {
+      let mousePos = [evt.clientX - this.layoutOrigin[0], evt.clientY - this.layoutOrigin[1]]
+      let insGridw = this.selCurrIns.props.gridw
+      let insGridh = this.selCurrIns.props.gridh
+      let insRectw = insGridw * this.colWidth
+      let insRecth = insGridh * this.rowHeight
+
+      let areaPos = [mousePos[0] - insRectw / 2, mousePos[1] - insRecth / 2]
+      let areaGridx = Math.ceil(areaPos[0] / this.colWidth)
+      let areaGridy = Math.ceil(areaPos[1] / this.rowHeight)
+      areaGridx = Math.max(1, Math.min(this.colNum - insGridw + 1, areaGridx))
+      areaGridy = Math.max(1, Math.min(this.rowNum - insGridh + 1, areaGridy))
+
+      this.holder.gridx = areaGridx
+      this.holder.gridy = areaGridy
+      this.holder.gridw = insGridw
+      this.holder.gridh = insGridh
+
+      // if (this.gridNodeUseful[gridX] && this.gridNodeUseful[gridX][gridY]) {
+      this.holder.used = true
+      // } else {
+      // this.holder.used = true
+      // }
+    },
     onDrop(evt, type) {
       evt.stopPropagation()
-      evt.target.classList.remove('dragging-over')
-      this.holderList[type].display = 'none'
-      this.insList[type].push(this.selCurrIns)
-      if (this.selCurrPar) {
-        this.insList[this.selCurrPar].splice(this.selCurrInd, 1)
+      this.dragging[type] = false
+      if (this.holder.used) {
+        this.selCurrIns.props.gridx = this.holder.gridx
+        this.selCurrIns.props.gridy = this.holder.gridy
+        this.selCurrIns.props.gridw = this.holder.gridw
+        this.selCurrIns.props.gridh = this.holder.gridh
+        if (!this.selCurrPar) {
+          this.insList[type].push(this.selCurrIns)
+          console.log(this.insList[type])
+          console.log(this.gridNodeUseful)
+        } else if (this.selCurrPar !== type) {
+          this.insList[type].push(this.selCurrIns)
+          this.insList[this.selCurrPar].splice(this.selCurrInd, 1)
+        }
       }
       console.log(`在区域内释放：${type}`)
     },
-    placeholder(evt, type) {
-      const insData = this.insList[type]
-      const holderStyle = this.holderList[type]
-      const props = this.selCurrIns.props
-      holderStyle['grid-column'] = `${props.gridx} / span ${props.gridw}`
-      holderStyle['grid-row'] = `${props.gridy} / span ${props.gridh}`
+    getMaxMatrix() {
+      let maxArea = 0
+      let maxRect = { x: 0, y: 0, cols: 0, rows: 0 }
+      const rows = matrix.length
+      const cols = matrix[0].length
+      const leftLessMin = new Array(cols).fill(-1)
+      const rightLessMin = new Array(cols).fill(cols)
+      const heights = new Array(cols).fill(0)
 
-      // 获取容器的偏移量
-      var containerOffsetLeft = evt.target.offsetLeft
-      var containerOffsetTop = evt.target.offsetTop
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (matrix[row][col] === 0) {
+            heights[col] += 1
+          } else {
+            heights[col] = 0
+          }
+        }
 
-      // 获取鼠标位置
-      var mouseX = evt.clientX
-      var mouseY = evt.clientY
+        let boundary = -1
+        for (let col = 0; col < cols; col++) {
+          if (matrix[row][col] === 0) {
+            leftLessMin[col] = Math.max(leftLessMin[col], boundary)
+          } else {
+            leftLessMin[col] = -1
+            boundary = col
+          }
+        }
 
-      // 计算鼠标相对于容器的偏移量
-      var offsetX = mouseX - containerOffsetLeft
-      var offsetY = mouseY - containerOffsetTop
-      console.log(
-        '鼠标进入目标元素时的偏移量：',
-        containerOffsetLeft,
-        containerOffsetTop,
-        offsetX,
-        offsetY
-      )
+        boundary = cols
+        for (let col = cols - 1; col >= 0; col--) {
+          if (matrix[row][col] === 0) {
+            rightLessMin[col] = Math.min(rightLessMin[col], boundary)
+          } else {
+            rightLessMin[col] = cols
+            boundary = col
+          }
+        }
 
-      // holderStyle['left'] = offsetX + 'px'
-      // holderStyle['top'] = offsetY + 'px'
-
-      holderStyle['transform'] = `translate(${offsetX}px, ${offsetY}px)`
-
-      // if (this.selInOrOut === 'out') {
-      //   if (insData.length === 0) {
-      //     holderStyle['grid-column'] = '1 / span 6'
-      //     holderStyle['grid-row'] = '1 / span 4'
-      //   }
-      // } else {
-      // }
+        for (let col = cols - 1; col >= 0; col--) {
+          const area = (rightLessMin[col] - leftLessMin[col] - 1) * heights[col]
+          if (area > maxArea) {
+            maxArea = area
+            maxRect = {
+              x: leftLessMin[col] + 1,
+              y: row - heights[col] + 1,
+              cols: rightLessMin[col] - leftLessMin[col] - 1,
+              rows: heights[col]
+            }
+          }
+        }
+      }
+      return maxRect
     }
   }
 }
