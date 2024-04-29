@@ -251,7 +251,6 @@ export default {
       this.selInOrOut = null
       evt.target.style.display = this.holder.displayCache
       console.log('停止拖拽')
-      console.log(this.gridNodeUseful)
     },
     onDragEnter(evt, type) {
       this.dragging[type] = true
@@ -279,16 +278,21 @@ export default {
       areaGridx = Math.max(1, Math.min(this.colNum - insGridw + 1, areaGridx))
       areaGridy = Math.max(1, Math.min(this.rowNum - insGridh + 1, areaGridy))
 
-      this.holder.gridx = areaGridx
-      this.holder.gridy = areaGridy
-      this.holder.gridw = insGridw
-      this.holder.gridh = insGridh
-
-      // if (this.gridNodeUseful[gridX] && this.gridNodeUseful[gridX][gridY]) {
-      this.holder.used = true
-      // } else {
-      // this.holder.used = true
-      // }
+      let matrixRect = this.getMatrixRect(areaGridx, areaGridy, insGridw, insGridh)
+      let autoRect = this.getMatrixMax(matrixRect)
+      if (autoRect.w === 0 && autoRect.h === 0) {
+        this.holder.used = false
+        this.holder.gridx = areaGridx
+        this.holder.gridy = areaGridy
+        this.holder.gridw = insGridw
+        this.holder.gridh = insGridh
+      } else {
+        this.holder.used = true
+        this.holder.gridx = areaGridx + autoRect.x
+        this.holder.gridy = areaGridy + autoRect.y
+        this.holder.gridw = autoRect.w
+        this.holder.gridh = autoRect.h
+      }
     },
     onDrop(evt, type) {
       evt.stopPropagation()
@@ -309,15 +313,19 @@ export default {
       }
       console.log(`在区域内释放：${type}`)
     },
-    getMaxMatrix() {
+    getMatrixRect(x, y, w, h) {
+      return this.gridNodeUseful
+        .slice(y - 1, y - 1 + h)
+        .map((sub, i) => sub.slice(x - 1, x - 1 + w))
+    },
+    getMatrixMax(matrix) {
       let maxArea = 0
-      let maxRect = { x: 0, y: 0, cols: 0, rows: 0 }
+      let maxRect = { x: 0, y: 0, w: 0, h: 0 }
       const rows = matrix.length
       const cols = matrix[0].length
-      const leftLessMin = new Array(cols).fill(-1)
-      const rightLessMin = new Array(cols).fill(cols)
+      const lefts = new Array(cols).fill(-1)
+      const rights = new Array(cols).fill(cols)
       const heights = new Array(cols).fill(0)
-
       for (let row = 0; row < rows; row++) {
         for (let col = 0; col < cols; col++) {
           if (matrix[row][col] === 0) {
@@ -326,36 +334,33 @@ export default {
             heights[col] = 0
           }
         }
-
         let boundary = -1
         for (let col = 0; col < cols; col++) {
           if (matrix[row][col] === 0) {
-            leftLessMin[col] = Math.max(leftLessMin[col], boundary)
+            lefts[col] = Math.max(lefts[col], boundary)
           } else {
-            leftLessMin[col] = -1
+            lefts[col] = -1
             boundary = col
           }
         }
-
         boundary = cols
         for (let col = cols - 1; col >= 0; col--) {
           if (matrix[row][col] === 0) {
-            rightLessMin[col] = Math.min(rightLessMin[col], boundary)
+            rights[col] = Math.min(rights[col], boundary)
           } else {
-            rightLessMin[col] = cols
+            rights[col] = cols
             boundary = col
           }
         }
-
         for (let col = cols - 1; col >= 0; col--) {
-          const area = (rightLessMin[col] - leftLessMin[col] - 1) * heights[col]
+          const area = (rights[col] - lefts[col] - 1) * heights[col]
           if (area > maxArea) {
             maxArea = area
             maxRect = {
-              x: leftLessMin[col] + 1,
+              x: lefts[col] + 1,
               y: row - heights[col] + 1,
-              cols: rightLessMin[col] - leftLessMin[col] - 1,
-              rows: heights[col]
+              w: rights[col] - lefts[col] - 1,
+              h: heights[col]
             }
           }
         }
