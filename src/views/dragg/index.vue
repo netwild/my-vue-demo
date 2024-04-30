@@ -158,7 +158,11 @@ export default {
         custom: false
       },
       holder: {
-        displayCache: null,
+        cache: {
+          display: null,
+          gridw: null,
+          gridh: null
+        },
         used: true,
         gridx: 1,
         gridy: 1,
@@ -201,12 +205,14 @@ export default {
         .fill()
         .map(() => Array(this.colNum).fill(0))
       this.insList['custom'].forEach(ins => {
-        for (let y = 0; y < ins.props.gridh; y++) {
-          map[ins.props.gridy + y - 1].fill(
-            1,
-            ins.props.gridx - 1,
-            ins.props.gridx + ins.props.gridw - 1
-          )
+        if (ins.base.id !== this.selCurrIns.base.id) {
+          for (let y = 0; y < ins.props.gridh; y++) {
+            map[ins.props.gridy + y - 1].fill(
+              1,
+              ins.props.gridx - 1,
+              ins.props.gridx + ins.props.gridw - 1
+            )
+          }
         }
       })
       return map
@@ -238,7 +244,7 @@ export default {
       img.src =
         "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' %3E%3Cpath /%3E%3C/svg%3E"
       evt.dataTransfer.setDragImage(img, 0, 0)
-      this.holder.displayCache = evt.target.style.display
+      this.holder.cache.display = evt.target.style.display
       setTimeout(() => {
         evt.target.style.display = 'none'
       }, 0)
@@ -249,26 +255,29 @@ export default {
       this.selCurrInd = null
       this.selCurrPar = null
       this.selInOrOut = null
-      evt.target.style.display = this.holder.displayCache
+      evt.target.style.display = this.holder.cache.display
       console.log('停止拖拽')
     },
     onDragEnter(evt, type) {
       this.dragging[type] = true
+      this.holder.cache.gridw = this.selCurrIns.props.gridw
+      this.holder.cache.gridh = this.selCurrIns.props.gridh
       console.log(`进入区域：${type}`)
+    },
+    onDragOver(evt, type) {
+      if (this.layoutMode === 'grid') this.placeholderGrid(evt, type)
+      // console.log(`在区域内移动：${type}`)
     },
     onDragLeave(evt, type) {
       this.dragging[type] = false
-      this.holder.used = true
+      this.selCurrIns.props.gridw = this.holder.cache.gridw
+      this.selCurrIns.props.gridh = this.holder.cache.gridh
       console.log(`离开区域：${type}`)
     },
-    onDragOver(evt, type) {
-      this.placeholder(evt, type)
-      // console.log(`在区域内移动：${type}`)
-    },
-    placeholder(evt, type) {
+    placeholderGrid(evt, type) {
       let mousePos = [evt.clientX - this.layoutOrigin[0], evt.clientY - this.layoutOrigin[1]]
-      let insGridw = this.selCurrIns.props.gridw
-      let insGridh = this.selCurrIns.props.gridh
+      let insGridw = this.holder.cache.gridw
+      let insGridh = this.holder.cache.gridh
       let insRectw = insGridw * this.colWidth
       let insRecth = insGridh * this.rowHeight
 
@@ -298,14 +307,16 @@ export default {
       evt.stopPropagation()
       this.dragging[type] = false
       if (this.holder.used) {
-        this.selCurrIns.props.gridx = this.holder.gridx
-        this.selCurrIns.props.gridy = this.holder.gridy
-        this.selCurrIns.props.gridw = this.holder.gridw
-        this.selCurrIns.props.gridh = this.holder.gridh
+        if (this.layoutMode === 'grid') {
+          this.selCurrIns.props.gridx = this.holder.gridx
+          this.selCurrIns.props.gridy = this.holder.gridy
+          this.selCurrIns.props.gridw = this.holder.gridw
+          this.selCurrIns.props.gridh = this.holder.gridh
+        }
         if (!this.selCurrPar) {
           this.insList[type].push(this.selCurrIns)
-          console.log(this.insList[type])
-          console.log(this.gridNodeUseful)
+          // console.log(this.insList[type])
+          // console.log(this.gridNodeUseful)
         } else if (this.selCurrPar !== type) {
           this.insList[type].push(this.selCurrIns)
           this.insList[this.selCurrPar].splice(this.selCurrInd, 1)
