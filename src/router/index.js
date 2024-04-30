@@ -21,6 +21,11 @@ const routes = [
     component: () => import(/* webpackChunkName: "dragg" */ '@/views/dragg')
   },
   {
+    path: '/dragg/dragg',
+    name: 'dragg-dragg',
+    component: () => import(/* webpackChunkName: "dragg-dragg" */ '@/views/dragg/dragg')
+  },
+  {
     path: '/datad/tools',
     name: 'datad-tools',
     component: () => import(/* webpackChunkName: "datad-tools" */ '@/views/datad/Tools')
