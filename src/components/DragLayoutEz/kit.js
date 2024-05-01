@@ -28,6 +28,25 @@ function deepClone(obj) {
   return JSON.parse(JSON.stringify(obj))
 }
 
+function setLocal(key, value) {
+  if (isNull(value)) return
+  try {
+    localStorage.setItem(key, JSON.stringify(value))
+  } catch (e) {
+    console.error('Error setting localStorage value:', e)
+  }
+}
+
+function getLocal(key) {
+  try {
+    const value = localStorage.getItem(key)
+    return notEmpty(value) ? JSON.parse(value) : null
+  } catch (e) {
+    console.error('Error getting localStorage value:', e)
+    return null
+  }
+}
+
 export default {
   isNull,
   notNull,
@@ -35,5 +54,7 @@ export default {
   isEmpty,
   notEmpty,
   ifEmpty,
-  deepClone
+  deepClone,
+  setLocal,
+  getLocal
 }

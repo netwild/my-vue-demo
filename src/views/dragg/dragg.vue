@@ -8,36 +8,30 @@
       </drag-layout>
     </div>
     <div class="right-wrap">
-      <div class="dragg-wrap">
+      <div class="dragg-wrap" v-for="(lay, i) in layouts" :key="i">
         <div class="wrap-header">
-          <h5>舞台01：</h5>
+          <h5>舞台0{{ i + 1 }}：</h5>
           <div>
-            <input type="radio" id="option0101" value="flex" v-model="layouts[0].mode" />
-            <label for="option0101">弹性布局（Flex）</label>
-            <input type="radio" id="option0102" value="grid" v-model="layouts[0].mode" />
-            <label for="option0102">网格布局（Grid）</label>
+            <input type="radio" :id="`option0${i}01`" value="flex" v-model="lay.mode" />
+            <label :for="`option0${i}01`">弹性布局（Flex）</label>
+            <input type="radio" :id="`option0${i}02`" value="grid" v-model="lay.mode" />
+            <label :for="`option0${i}02`">网格布局（Grid）</label>
           </div>
         </div>
-        <div class="wrap-body"></div>
-      </div>
-      <div class="dragg-wrap">
-        <div class="wrap-header">
-          <h5>舞台02：</h5>
-          <div>
-            <input type="radio" id="option0201" value="flex" v-model="layouts[1].mode" />
-            <label for="option0201">弹性布局（Flex）</label>
-            <input type="radio" id="option0202" value="grid" v-model="layouts[1].mode" />
-            <label for="option0202">网格布局（Grid）</label>
-          </div>
+        <div class="wrap-body">
+          <drag-layout :list="lay.list" :layout="lay.mode" :grid-rows="12">
+            <div class="item-wrap" v-for="(item, i) in lay.list" :key="item.id">
+              {{ item.base.name }}
+            </div>
+          </drag-layout>
         </div>
-        <div class="wrap-body"></div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import DragLayout from '@/components/ez-drag/layout'
+import DragLayout from '@/components/DragLayoutEz'
 export default {
   name: '',
   components: {
@@ -47,48 +41,41 @@ export default {
     return {
       srcList: [
         {
-          base: { code: 'a01', name: '组件01' },
-          props: {}
+          base: { code: 'a01', name: '组件01' }
         },
         {
-          base: { code: 'a02', name: '组件02' },
-          props: {}
+          base: { code: 'a02', name: '组件02' }
         },
         {
-          base: { code: 'a03', name: '组件03' },
-          props: {}
+          base: { code: 'a03', name: '组件03' }
         },
         {
-          base: { code: 'a04', name: '组件04' },
-          props: {}
+          base: { code: 'a04', name: '组件04' }
         },
         {
-          base: { code: 'a05', name: '组件05' },
-          props: {}
+          base: { code: 'a05', name: '组件05' }
         },
         {
-          base: { code: 'a06', name: '组件06' },
-          props: {}
+          base: { code: 'a06', name: '组件06' }
         },
         {
-          base: { code: 'a07', name: '组件07' },
-          props: {}
+          base: { code: 'a07', name: '组件07' }
         },
         {
-          base: { code: 'a08', name: '组件08' },
-          props: {}
+          base: { code: 'a08', name: '组件08' }
         },
         {
-          base: { code: 'a09', name: '组件09' },
-          props: {}
+          base: { code: 'a09', name: '组件09' }
         }
       ],
       layouts: [
         {
-          mode: 'flex'
+          mode: 'flex',
+          list: []
         },
         {
-          mode: 'grid'
+          mode: 'grid',
+          list: []
         }
       ]
     }
@@ -107,14 +94,16 @@ body {
     width: 200px;
     height: 100%;
     border-right: 1px solid #999;
-    padding: 0 15px;
+    padding: 15px;
     .item-wrap {
-      margin-top: 15px;
       padding: 20px 0;
       text-align: center;
       background-color: #cccccc;
       font-size: 14px;
       cursor: default;
+      &:not(:first-child) {
+        margin-top: 15px;
+      }
     }
   }
   .right-wrap {
@@ -144,6 +133,16 @@ body {
         border: 1px solid #999;
         overflow: hidden auto;
         position: relative;
+        height: 100%;
+        .item-wrap {
+          flex: 1;
+          display: flex;
+          padding: 15px;
+          background-color: #ccc;
+          justify-content: center;
+          align-items: center;
+          overflow: hidden;
+        }
       }
     }
   }

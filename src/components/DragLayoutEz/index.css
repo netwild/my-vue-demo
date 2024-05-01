@@ -1,0 +1,43 @@
+.ez-drag-layout-root {
+  position: relative;
+  height: 100%;
+  &.layout-flex{
+    display: flex;
+    flex-direction: var(--ez-flex-dir);
+    justify-content: var(--ez-flex-main-align);
+    align-items: var(--ez-flex-item-align);
+    &.flex-dir-row .ez-drag-layout-item:not(:first-child) {
+          margin-left: var(--ez-flex-margin);
+    }
+    &.flex-dir-column .ez-drag-layout-item:not(:first-child) {
+          margin-top: var(--ez-flex-margin);
+    }
+  }
+  &.layout-grid{
+    display: grid;
+    gap: var(--ez-grid-padd);
+    grid-template-columns: repeat(var(--ez-grid-cols), 1fr);
+    grid-template-rows: repeat(var(--ez-grid-rows), 1fr);
+    &::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: -1;
+      pointer-events: none;
+      border-right: 1px solid #e0e0e0;
+      border-bottom: 1px solid #e0e0e0;
+      background-size: var(--ez-grid-col-width) var(--ez-grid-row-height);
+      background-image: linear-gradient(to right, #e0e0e0 1px, transparent 1px),
+        linear-gradient(to bottom, #e0e0e0 1px, transparent 1px);
+    }
+  }
+  &.dragging-on .ez-drag-layout-item{
+    pointer-events: none;
+  }
+  &.dragging-off .ez-drag-layout-item{
+    pointer-events: auto;
+  }
+}
