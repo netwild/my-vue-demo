@@ -16,7 +16,8 @@ import elementResizeDetectorMaker from 'element-resize-detector'
 const CONSTS = {
   LOCAL_KEY_DATA: 'EZ_DRAG_DATA_TRANSFER',
   LOCAL_KEY_STAT: 'EZ_DRAG_DATA_STAT',
-  EL_ATTR_EXIST: 'ezlisten'
+  EL_ATTR_EXIST: 'ezlisten',
+  EL_ATTR_UUID: 'ezid'
 }
 export default {
   name: 'ez-drag-layout',
@@ -29,6 +30,10 @@ export default {
       type: Array,
       default: [],
       required: true
+    },
+    clone: {
+      type: Function,
+      default: null
     },
     pullAble: {
       type: Boolean,
@@ -120,10 +125,23 @@ export default {
       rootWidth: 0,
       rootHeight: 0,
       rootOrigin: [0, 0],
+      rootId: Kit.genUUID(),
       elements: [],
       dragging: false,
-      curr: { ind: 0, data: {} },
-      erd: null
+      curr: { ind: 0, item: {}, rootId: null },
+      erd: null,
+      holder: {
+        cache: {
+          display: null,
+          gridw: null,
+          gridh: null
+        },
+        used: true,
+        gridx: 1,
+        gridy: 1,
+        gridw: 1,
+        gridh: 1
+      }
     }
   },
   mounted() {
@@ -134,9 +152,7 @@ export default {
     this.initEvents()
   },
   beforeDestroy() {
-    if (this.erd) {
-      this.erd.removeAllListeners()
-    }
+    if (Kit.notNull(this.erd)) this.erd.uninstall(this.$refs.layoutRoot)
   },
   computed: {
     colWidth() {
@@ -195,15 +211,18 @@ export default {
     initEvents() {
       const root = this.$refs.layoutRoot
       if (Kit.isEmpty(root.dataset[CONSTS.EL_ATTR_EXIST])) {
-        this.addItemEvent(root, null, 'dragenter', this.onDragEnter)
-        this.addItemEvent(root, null, 'dragover', this.onDragOver)
-        this.addItemEvent(root, null, 'dragleave', this.onDragLeave)
-        this.addItemEvent(root, null, 'drop', this.onDrop)
+        this.addItemEvent(root, null, 'dragenter', this.onWrapDragEnter)
+        this.addItemEvent(root, null, 'dragover', this.onWrapDragOver)
+        this.addItemEvent(root, null, 'dragleave', this.onWrapDragLeave)
+        this.addItemEvent(root, null, 'drop', this.onWrapDrop)
         root.dataset[CONSTS.EL_ATTR_EXIST] = true
+        root.dataset[CONSTS.EL_ATTR_UUID] = this.rootId
       }
+
       const erdEls = root.getElementsByTagName('object')
       let erdEl = null
       if (erdEls.length > 0) erdEl = root.removeChild(erdEls[0])
+
       if (Kit.notEmpty(this.itemSelector)) {
         this.elements = Array.from(root.querySelectorAll(this.itemSelector))
       } else {
@@ -214,54 +233,111 @@ export default {
           el.setAttribute('draggable', 'true')
           el.classList.add('ez-drag-layout-item')
           el.dataset[CONSTS.EL_ATTR_EXIST] = true
-          this.addItemEvent(el, ind, 'dragstart', this.onDragStart)
-          this.addItemEvent(el, ind, 'dragend', this.onDragEnd)
-          this.addItemEvent(el, ind, 'dragenter', null)
-          this.addItemEvent(el, ind, 'dragover', null)
-          this.addItemEvent(el, ind, 'dragleave', null)
-          this.addItemEvent(el, ind, 'drop', null)
+          this.addItemEvent(el, ind, 'dragstart', this.onItemDragStart)
+          this.addItemEvent(el, ind, 'dragend', this.onItemDragEnd)
+          this.addItemEvent(el, ind, 'dragenter', this.onItemDragEnter)
+          this.addItemEvent(el, ind, 'dragover', this.onItemDragOver)
+          this.addItemEvent(el, ind, 'dragleave', this.onItemDragLeave)
+          this.addItemEvent(el, ind, 'drop', this.onItemDrop)
         }
       })
+
       if (erdEl) root.appendChild(erdEl)
     },
     addItemEvent(el, ind, evtName, handle) {
       el.addEventListener(
         evtName,
         evt => {
-          if (evt.target === el) {
-            if (evtName !== 'dragstart') evt.preventDefault()
-            if (Kit.notNull(handle)) handle(evt, ind)
-          }
+          if (evt.target === el && Kit.notNull(handle)) handle(evt, ind)
         },
         false
       )
     },
-    onDragStart(evt, ind) {
+    onItemDragStart(evt, ind) {
       evt.dataTransfer.effectAllowed = 'copy'
-      const item = { ind, data: this.list[ind] }
-      Kit.setLocal(CONSTS.LOCAL_KEY_DATA, item)
-      // evt.dataTransfer.setData('text', ind)
+
+      let item = this.list[ind]
+      if (Kit.notNull(this.clone)) item = this.clone(item)
+
+      this.setItemProp(item, 'gridx', 1, false)
+      this.setItemProp(item, 'gridy', 1, false)
+      this.setItemProp(item, 'gridw', this.gridColsDef, false)
+      this.setItemProp(item, 'gridh', this.gridRowsDef, false)
+
+      const data = { ind, item, rootId: this.rootId }
+      Kit.setLocal(CONSTS.LOCAL_KEY_DATA, data)
+
+      if (this.moveAble) {
+        const img = new Image()
+        img.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><path /></svg>"
+        evt.dataTransfer.setDragImage(img, 0, 0)
+      }
     },
-    onDragEnd(evt, ind) {
+    onItemDragEnd(evt, ind) {
+      evt.preventDefault()
       this.dragging = false
+      if (this.moveAble) {
+        evt.target.style.opacity = 1
+      }
+    },
+    onItemDragEnter(evt, ind) {
+      evt.preventDefault()
+      this.dragging = true
       // console.log(evt, ind)
     },
-    onDragEnter(evt) {
+    onItemDragOver(evt, ind) {
+      evt.preventDefault()
+      // console.log(evt, ind)
+    },
+    onItemDragLeave(evt, ind) {
+      evt.preventDefault()
+      // console.log(evt, ind)
+    },
+    onItemDrop(evt, ind) {
+      evt.preventDefault()
+      // console.log(evt, ind)
+    },
+    onWrapDragEnter(evt) {
+      evt.preventDefault()
       const item = Kit.getLocal(CONSTS.LOCAL_KEY_DATA)
-      this.curr = { ind: item.ind, data: item.data }
+      this.curr = { ...item }
       this.dragging = true
-      // console.log(this.curr)
     },
-    onDragOver(evt) {
+    onWrapDragOver(evt) {
+      if (this.pushAble) {
+        evt.preventDefault()
+      }
+    },
+    onWrapDragLeave(evt) {
+      evt.preventDefault()
+      this.dragging = false
       // console.log(evt)
     },
-    onDragLeave(evt) {
-      // console.log(evt)
-    },
-    onDrop(evt) {
-      this.list.push(this.curr.data)
+    onWrapDrop(evt) {
+      evt.preventDefault()
+      this.dragging = false
+      this.list.push(this.curr.item)
       // console.log(evt.dataTransfer.getData('text'))
       // console.log(evt)
+    },
+    setItemProp(item, prop, val, overwrite) {
+      const paths = this.getItemPropPath(prop)
+      this.setItemPropNext(item, paths, val, overwrite)
+    },
+    setItemPropNext(item, paths, val, overwrite) {
+      if (paths.length === 1) {
+        if (Kit.isNull(item[paths[0]]) || overwrite) this.$set(item, paths[0], val)
+      } else {
+        if (Kit.isNull(item[paths[0]])) this.$set(item, paths[0], {})
+        this.setItemPropNext(item[paths[0]], paths.slice(1), val, overwrite)
+      }
+    },
+    getItemPropPath(propName) {
+      if (propName === 'gridx') return this.itemGridXPath
+      else if (propName === 'gridy') return this.itemGridYPath
+      else if (propName === 'gridw') return this.itemGridWPath
+      else if (propName === 'gridh') return this.itemGridHPath
+      else return null
     }
   }
 }

@@ -1,8 +1,8 @@
 <template>
   <div class="container-wrap">
     <div class="left-wrap">
-      <drag-layout :list="srcList">
-        <div class="item-wrap" v-for="(item, i) in srcList" :key="item.id">
+      <drag-layout :list="srcList" :moveAble="false" :pushAble="false" :clone="createIns">
+        <div class="item-wrap" v-for="(item, i) in srcList" :key="i">
           {{ item.base.name }}
         </div>
       </drag-layout>
@@ -20,7 +20,15 @@
         </div>
         <div class="wrap-body">
           <drag-layout :list="lay.list" :layout="lay.mode" :grid-rows="12">
-            <div class="item-wrap" v-for="(item, i) in lay.list" :key="item.id">
+            <div
+              class="item-wrap"
+              v-for="(item, i) in lay.list"
+              :key="i"
+              :style="{
+                'grid-column': `${item.props.gridx} / span ${item.props.gridw}`,
+                'grid-row': `${item.props.gridy} / span ${item.props.gridh}`
+              }"
+            >
               {{ item.base.name }}
             </div>
           </drag-layout>
@@ -31,6 +39,7 @@
 </template>
 
 <script>
+import Kit from '../../components/DragLayoutEz/kit'
 import DragLayout from '@/components/DragLayoutEz'
 export default {
   name: '',
@@ -78,6 +87,13 @@ export default {
           list: []
         }
       ]
+    }
+  },
+  methods: {
+    createIns(origin) {
+      let ins = Kit.deepClone(origin)
+      ins.base.id = Kit.genUUID()
+      return ins
     }
   }
 }
@@ -137,7 +153,7 @@ body {
         .item-wrap {
           flex: 1;
           display: flex;
-          padding: 15px;
+          padding: 10px;
           background-color: #ccc;
           justify-content: center;
           align-items: center;

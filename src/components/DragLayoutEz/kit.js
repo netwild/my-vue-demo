@@ -1,3 +1,5 @@
+import { v4 as uuidv4 } from 'uuid'
+
 function isNull(val) {
   return val === null || val === undefined
 }
@@ -47,6 +49,10 @@ function getLocal(key) {
   }
 }
 
+function genUUID() {
+  return uuidv4()
+}
+
 export default {
   isNull,
   notNull,
@@ -56,5 +62,6 @@ export default {
   ifEmpty,
   deepClone,
   setLocal,
-  getLocal
+  getLocal,
+  genUUID
 }

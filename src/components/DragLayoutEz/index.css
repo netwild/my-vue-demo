@@ -1,7 +1,7 @@
 .ez-drag-layout-root {
   position: relative;
   height: 100%;
-  &.layout-flex{
+  &.layout-flex {
     display: flex;
     flex-direction: var(--ez-flex-dir);
     justify-content: var(--ez-flex-main-align);
@@ -13,7 +13,7 @@
           margin-top: var(--ez-flex-margin);
     }
   }
-  &.layout-grid{
+  &.layout-grid {
     display: grid;
     gap: var(--ez-grid-padd);
     grid-template-columns: repeat(var(--ez-grid-cols), 1fr);
@@ -34,10 +34,10 @@
         linear-gradient(to bottom, #e0e0e0 1px, transparent 1px);
     }
   }
-  &.dragging-on .ez-drag-layout-item{
+  &.dragging-on .ez-drag-layout-item {
     pointer-events: none;
   }
-  &.dragging-off .ez-drag-layout-item{
+  &.dragging-off .ez-drag-layout-item {
     pointer-events: auto;
   }
 }
