@@ -7,6 +7,14 @@
     class="ez-drag-layout-root"
   >
     <slot></slot>
+    <div
+      class="drag-holder"
+      :class="[holder.used ? 'holder-use' : 'holder-dis']"
+      :style="{
+        'grid-column': `${holder.gridx} / span ${holder.gridw}`,
+        'grid-row': `${holder.gridy} / span ${holder.gridh}`
+      }"
+    ></div>
   </component>
 </template>
 
@@ -122,6 +130,7 @@ export default {
   },
   data() {
     return {
+      erd: null,
       rootWidth: 0,
       rootHeight: 0,
       rootOrigin: [0, 0],
@@ -129,18 +138,19 @@ export default {
       elements: [],
       dragging: false,
       curr: { ind: 0, item: {}, rootId: null },
-      erd: null,
+      cache: {
+        display: null,
+        gridx: null,
+        gridy: null,
+        gridw: null,
+        gridh: null
+      },
       holder: {
-        cache: {
-          display: null,
-          gridw: null,
-          gridh: null
-        },
         used: true,
-        gridx: 1,
-        gridy: 1,
-        gridw: 1,
-        gridh: 1
+        gridx: null,
+        gridy: null,
+        gridw: null,
+        gridh: null
       }
     }
   },
@@ -182,17 +192,17 @@ export default {
       }
     },
     gridNodeUseful() {
-      let map = Array(this.rowNum)
+      let map = Array(this.gridRows)
         .fill()
-        .map(() => Array(this.colNum).fill(0))
-      this.insList['custom'].forEach(ins => {
-        if (ins.base.id !== this.selCurrIns.base.id) {
-          for (let y = 0; y < ins.props.gridh; y++) {
-            map[ins.props.gridy + y - 1].fill(
-              1,
-              ins.props.gridx - 1,
-              ins.props.gridx + ins.props.gridw - 1
-            )
+        .map(() => Array(this.gridCols).fill(0))
+      this.list.forEach((item, i) => {
+        if (this.curr.rootId !== this.rootId || this.curr.ind !== i) {
+          const gx = this.getItemProp(item, 'gridx')
+          const gy = this.getItemProp(item, 'gridy')
+          const gw = this.getItemProp(item, 'gridw')
+          const gh = this.getItemProp(item, 'gridh')
+          for (let y = 0; y < gh; y++) {
+            map[gy + y - 1].fill(1, gx - 1, gx + gw - 1)
           }
         }
       })
@@ -202,10 +212,11 @@ export default {
   methods: {
     rootRect() {
       this.erd = elementResizeDetectorMaker()
-      this.erd.listenTo(this.$refs.layoutRoot, element => {
-        this.rootWidth = element.offsetWidth
-        this.rootHeight = element.offsetHeight
-        this.rootOrigin = [element.offsetLeft, element.offsetTop]
+      this.erd.listenTo(this.$refs.layoutRoot, elm => {
+        this.rootWidth = elm.offsetWidth
+        this.rootHeight = elm.offsetHeight
+        const rect = elm.getBoundingClientRect()
+        this.rootOrigin = [rect.left + window.scrollX, rect.top + window.scrollY]
       })
     },
     initEvents() {
@@ -266,59 +277,179 @@ export default {
 
       const data = { ind, item, rootId: this.rootId }
       Kit.setLocal(CONSTS.LOCAL_KEY_DATA, data)
+      Kit.setLocal(CONSTS.LOCAL_KEY_STAT, { moved: false })
 
       if (this.moveAble) {
         const img = new Image()
         img.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><path /></svg>"
         evt.dataTransfer.setDragImage(img, 0, 0)
+
+        const el = evt.target
+        this.cache.display = el.style.display
+        setTimeout(() => {
+          el.style.display = 'none'
+        }, 0)
       }
     },
     onItemDragEnd(evt, ind) {
       evt.preventDefault()
       this.dragging = false
-      if (this.moveAble) {
-        evt.target.style.opacity = 1
+      if (Kit.isNull(this.clone)) {
+        const ret = Kit.getLocal(CONSTS.LOCAL_KEY_STAT)
+        if (ret && ret.moved) {
+          this.list.splice(this.curr.ind, 1)
+        } else {
+          evt.target.style.display = this.cache.display
+        }
       }
     },
     onItemDragEnter(evt, ind) {
       evt.preventDefault()
       this.dragging = true
-      // console.log(evt, ind)
     },
     onItemDragOver(evt, ind) {
       evt.preventDefault()
-      // console.log(evt, ind)
     },
     onItemDragLeave(evt, ind) {
       evt.preventDefault()
-      // console.log(evt, ind)
     },
     onItemDrop(evt, ind) {
       evt.preventDefault()
-      // console.log(evt, ind)
     },
     onWrapDragEnter(evt) {
       evt.preventDefault()
       const item = Kit.getLocal(CONSTS.LOCAL_KEY_DATA)
       this.curr = { ...item }
+      // if (this.curr.rootId === this.rootId) this.curr.item = this.list[this.curr.ind]
+      this.cache.gridx = this.getItemProp(this.curr.item, 'gridx')
+      this.cache.gridy = this.getItemProp(this.curr.item, 'gridy')
+      this.cache.gridw = this.getItemProp(this.curr.item, 'gridw')
+      this.cache.gridh = this.getItemProp(this.curr.item, 'gridh')
       this.dragging = true
     },
     onWrapDragOver(evt) {
       if (this.pushAble) {
         evt.preventDefault()
+        if (this.layout === 'grid') this.placeholderGrid(evt)
       }
     },
     onWrapDragLeave(evt) {
       evt.preventDefault()
       this.dragging = false
-      // console.log(evt)
+      if (this.curr.rootId === this.rootId) {
+        this.setItemProp(this.curr.item, 'gridx', this.cache.gridx, true)
+        this.setItemProp(this.curr.item, 'gridy', this.cache.gridy, true)
+        this.setItemProp(this.curr.item, 'gridw', this.cache.gridw, true)
+        this.setItemProp(this.curr.item, 'gridh', this.cache.gridh, true)
+      }
     },
     onWrapDrop(evt) {
       evt.preventDefault()
       this.dragging = false
-      this.list.push(this.curr.item)
-      // console.log(evt.dataTransfer.getData('text'))
-      // console.log(evt)
+      let item = this.curr.rootId === this.rootId ? this.list[this.curr.ind] : this.curr.item
+      this.setItemProp(item, 'gridx', this.holder.gridx, true)
+      this.setItemProp(item, 'gridy', this.holder.gridy, true)
+      this.setItemProp(item, 'gridw', this.holder.gridw, true)
+      this.setItemProp(item, 'gridh', this.holder.gridh, true)
+      if (this.curr.rootId !== this.rootId) {
+        this.list.push(this.curr.item)
+        Kit.setLocal(CONSTS.LOCAL_KEY_STAT, { moved: true })
+      }
+    },
+    placeholderGrid(evt) {
+      let mousePos = [evt.clientX - this.rootOrigin[0], evt.clientY - this.rootOrigin[1]]
+      let insGridw = this.cache.gridw
+      let insGridh = this.cache.gridh
+
+      let insRectw = insGridw * this.colWidth
+      let insRecth = insGridh * this.rowHeight
+
+      let areaPos = [mousePos[0] - insRectw / 2, mousePos[1] - insRecth / 2]
+      let areaGridx = Math.ceil(areaPos[0] / this.colWidth)
+      let areaGridy = Math.ceil(areaPos[1] / this.rowHeight)
+      areaGridx = Math.max(1, Math.min(this.gridCols - insGridw + 1, areaGridx))
+      areaGridy = Math.max(1, Math.min(this.gridRows - insGridh + 1, areaGridy))
+
+      let matrixRect = this.getMatrixRect(areaGridx, areaGridy, insGridw, insGridh)
+      let autoRect = this.getMatrixMax(matrixRect)
+      if (autoRect.w === 0 && autoRect.h === 0) {
+        this.holder.used = false
+        this.holder.gridx = areaGridx
+        this.holder.gridy = areaGridy
+        this.holder.gridw = insGridw
+        this.holder.gridh = insGridh
+      } else {
+        this.holder.used = true
+        this.holder.gridx = areaGridx + autoRect.x
+        this.holder.gridy = areaGridy + autoRect.y
+        this.holder.gridw = autoRect.w
+        this.holder.gridh = autoRect.h
+      }
+    },
+    getMatrixRect(x, y, w, h) {
+      return this.gridNodeUseful
+        .slice(y - 1, y - 1 + h)
+        .map((sub, i) => sub.slice(x - 1, x - 1 + w))
+    },
+    getMatrixMax(matrix) {
+      let maxArea = 0
+      let maxRect = { x: 0, y: 0, w: 0, h: 0 }
+      const rows = matrix.length
+      const cols = matrix[0].length
+      const lefts = new Array(cols).fill(-1)
+      const rights = new Array(cols).fill(cols)
+      const heights = new Array(cols).fill(0)
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          if (matrix[row][col] === 0) {
+            heights[col] += 1
+          } else {
+            heights[col] = 0
+          }
+        }
+        let boundary = -1
+        for (let col = 0; col < cols; col++) {
+          if (matrix[row][col] === 0) {
+            lefts[col] = Math.max(lefts[col], boundary)
+          } else {
+            lefts[col] = -1
+            boundary = col
+          }
+        }
+        boundary = cols
+        for (let col = cols - 1; col >= 0; col--) {
+          if (matrix[row][col] === 0) {
+            rights[col] = Math.min(rights[col], boundary)
+          } else {
+            rights[col] = cols
+            boundary = col
+          }
+        }
+        for (let col = cols - 1; col >= 0; col--) {
+          const area = (rights[col] - lefts[col] - 1) * heights[col]
+          if (area > maxArea) {
+            maxArea = area
+            maxRect = {
+              x: lefts[col] + 1,
+              y: row - heights[col] + 1,
+              w: rights[col] - lefts[col] - 1,
+              h: heights[col]
+            }
+          }
+        }
+      }
+      return maxRect
+    },
+    getItemProp(item, prop) {
+      const paths = this.getItemPropPath(prop)
+      return this.getItemPropNext(item, paths)
+    },
+    getItemPropNext(item, paths) {
+      if (paths.length === 1) {
+        return item[paths[0]]
+      } else {
+        return this.getItemPropNext(item[paths[0]], paths.slice(1))
+      }
     },
     setItemProp(item, prop, val, overwrite) {
       const paths = this.getItemPropPath(prop)
