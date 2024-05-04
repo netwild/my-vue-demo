@@ -139,7 +139,7 @@ export default {
       dragging: false,
       curr: { ind: 0, item: {}, rootId: null },
       cache: {
-        display: null,
+        opacity: null,
         gridx: null,
         gridy: null,
         gridw: null,
@@ -147,10 +147,10 @@ export default {
       },
       holder: {
         used: true,
-        gridx: null,
-        gridy: null,
-        gridw: null,
-        gridh: null
+        gridx: 1,
+        gridy: 1,
+        gridw: this.gridColsDef,
+        gridh: this.gridRowsDef
       }
     }
   },
@@ -252,7 +252,6 @@ export default {
           this.addItemEvent(el, ind, 'drop', this.onItemDrop)
         }
       })
-
       if (erdEl) root.appendChild(erdEl)
     },
     addItemEvent(el, ind, evtName, handle) {
@@ -263,6 +262,11 @@ export default {
         },
         false
       )
+    },
+    removeItemEvent(ind) {
+      var oldElement = this.elements[ind]
+      var newElement = oldElement.cloneNode(true)
+      oldElement.parentNode.replaceChild(newElement, oldElement)
     },
     onItemDragStart(evt, ind) {
       evt.dataTransfer.effectAllowed = 'copy'
@@ -287,7 +291,7 @@ export default {
         const el = evt.target
         this.cache.display = el.style.display
         setTimeout(() => {
-          el.style.display = 'none'
+          // el.style.display = 'none'
         }, 0)
       }
     },
@@ -320,7 +324,6 @@ export default {
       evt.preventDefault()
       const item = Kit.getLocal(CONSTS.LOCAL_KEY_DATA)
       this.curr = { ...item }
-      // if (this.curr.rootId === this.rootId) this.curr.item = this.list[this.curr.ind]
       this.cache.gridx = this.getItemProp(this.curr.item, 'gridx')
       this.cache.gridy = this.getItemProp(this.curr.item, 'gridy')
       this.cache.gridw = this.getItemProp(this.curr.item, 'gridw')
@@ -347,13 +350,15 @@ export default {
       evt.preventDefault()
       this.dragging = false
       let item = this.curr.rootId === this.rootId ? this.list[this.curr.ind] : this.curr.item
-      this.setItemProp(item, 'gridx', this.holder.gridx, true)
-      this.setItemProp(item, 'gridy', this.holder.gridy, true)
-      this.setItemProp(item, 'gridw', this.holder.gridw, true)
-      this.setItemProp(item, 'gridh', this.holder.gridh, true)
-      if (this.curr.rootId !== this.rootId) {
-        this.list.push(this.curr.item)
-        Kit.setLocal(CONSTS.LOCAL_KEY_STAT, { moved: true })
+      if (this.holder.used) {
+        this.setItemProp(item, 'gridx', this.holder.gridx, true)
+        this.setItemProp(item, 'gridy', this.holder.gridy, true)
+        this.setItemProp(item, 'gridw', this.holder.gridw, true)
+        this.setItemProp(item, 'gridh', this.holder.gridh, true)
+        if (this.curr.rootId !== this.rootId) {
+          this.list.push(item)
+          Kit.setLocal(CONSTS.LOCAL_KEY_STAT, { moved: true })
+        }
       }
     },
     placeholderGrid(evt) {
