@@ -42,7 +42,7 @@ import Consts from './consts'
 import Kit from './kit'
 import elementResizeDetectorMaker from 'element-resize-detector'
 export default {
-  name: 'ez-drag-layout',
+  name: 'draggable-ez-wrap',
   props: {
     tag: {
       type: String,

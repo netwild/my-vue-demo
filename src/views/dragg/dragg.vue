@@ -1,8 +1,8 @@
 <template>
   <div class="container-wrap">
     <div class="left-wrap">
-      <drag-layout :list="srcList" :pushAble="false" :moveAble="false" :clone="createIns">
-        <drag-item
+      <draggable-wrap :list="srcList" :pushAble="false" :moveAble="false" :clone="createIns">
+        <draggable-item
           v-for="(item, i) in srcList"
           :key="i"
           :list="srcList"
@@ -10,8 +10,8 @@
           class="item-wrap"
         >
           {{ item.base.name }}
-        </drag-item>
-      </drag-layout>
+        </draggable-item>
+      </draggable-wrap>
     </div>
     <div class="right-wrap">
       <div class="dragg-wrap" v-for="(lay, i) in layouts" :key="i">
@@ -25,8 +25,8 @@
           </div>
         </div>
         <div class="wrap-body">
-          <drag-layout :list="lay.list" :layout="lay.mode" :grid-rows="12">
-            <drag-item
+          <draggable-wrap :list="lay.list" :layout="lay.mode" :grid-rows="12">
+            <draggable-item
               v-for="(item, i) in lay.list"
               :key="item.base.id"
               :list="lay.list"
@@ -34,8 +34,8 @@
               class="item-wrap"
             >
               {{ item.base.name }}
-            </drag-item>
-          </drag-layout>
+            </draggable-item>
+          </draggable-wrap>
         </div>
       </div>
     </div>
@@ -43,14 +43,14 @@
 </template>
 
 <script>
-import Kit from '../../components/DragLayoutEz/kit'
-import DragLayout from '@/components/DragLayoutEz'
-import DragItem from '@/components/DragLayoutEz/item'
+import Kit from '../../components/DraggableEz/kit'
+import DraggableWrap from '@/components/DraggableEz/wrap'
+import DraggableItem from '@/components/DraggableEz/item'
 export default {
   name: '',
   components: {
-    DragLayout,
-    DragItem
+    DraggableWrap,
+    DraggableItem
   },
   data() {
     return {
@@ -170,3 +170,4 @@ body {
   }
 }
 </style>
+../../components/DraggableEz/kit

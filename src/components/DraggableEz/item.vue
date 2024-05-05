@@ -20,7 +20,7 @@
 import Consts from './consts'
 import Kit from './kit'
 export default {
-  name: 'ez-drag-item',
+  name: 'draggable-ez-item',
   props: {
     tag: {
       type: String,
