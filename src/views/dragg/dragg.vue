@@ -2,19 +2,13 @@
   <div class="container-wrap">
     <div class="left-wrap">
       <draggable-wrap :list="srcList" :pushAble="false" :moveAble="false" :clone="createIns">
-        <draggable-item
-          v-for="(item, i) in srcList"
-          :key="i"
-          :list="srcList"
-          :index="i"
-          class="item-wrap"
-        >
+        <draggable-item v-for="(item, i) in srcList" :key="i" :index="i" class="item-wrap">
           {{ item.base.name }}
         </draggable-item>
       </draggable-wrap>
     </div>
     <div class="right-wrap">
-      <div class="dragg-wrap" v-for="(lay, i) in layouts" :key="i">
+      <div class="dragg-wrap" v-for="(lay, i) in layouts" :key="i" :style="{ height: lay.height }">
         <div class="wrap-header">
           <h5>舞台0{{ i + 1 }}：</h5>
           <div>
@@ -25,11 +19,10 @@
           </div>
         </div>
         <div class="wrap-body">
-          <draggable-wrap :list="lay.list" :layout="lay.mode" :grid-rows="12">
+          <draggable-wrap :list="lay.list" :layout="lay.mode" :resizeAble="true">
             <draggable-item
               v-for="(item, i) in lay.list"
               :key="item.base.id"
-              :list="lay.list"
               :index="i"
               class="item-wrap"
             >
@@ -86,11 +79,13 @@ export default {
       layouts: [
         {
           mode: 'flex',
-          list: []
+          list: [],
+          height: '20%'
         },
         {
           mode: 'grid',
-          list: []
+          list: [],
+          height: '80%'
         }
       ]
     }
@@ -136,7 +131,6 @@ body {
     flex-direction: column;
     overflow: hidden;
     .dragg-wrap {
-      flex: 1;
       display: flex;
       flex-direction: column;
       overflow: hidden;

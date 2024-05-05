@@ -5,14 +5,27 @@
     ref="layoutItem"
     class="ez-drag-layout-item"
     draggable="true"
-    @dragstart.self="onDragStart"
-    @dragend.self.prevent="onDragEnd"
-    @dragenter.self.prevent="onDragEnter"
-    @dragleave.self.prevent
-    @dragover.self.prevent
-    @drop.self.prevent
+    @dragstart.self.stop="onDragStart"
+    @dragend.self.prevent.stop="onDragEnd"
+    @dragenter.self.prevent.stop="onDragEnter"
+    @drag.self.prevent.stop
+    @dragleave.self.prevent.stop
+    @dragover.self.prevent.stop
+    @drop.self.prevent.stop
   >
     <slot></slot>
+    <div
+      v-if="resizeAble"
+      class="ez-drag-resize-handle"
+      draggable="true"
+      @dragstart.self.stop="onResizeStart"
+      @dragend.self.prevent.stop="onResizeEnd"
+      @dragenter.self.prevent.stop="onResizeEnter"
+      @drag.self.prevent.stop
+      @dragleave.self.prevent.stop
+      @dragover.self.prevent.stop
+      @drop.self.prevent.stop
+    ></div>
   </component>
 </template>
 
@@ -38,6 +51,7 @@ export default {
       list: this.$parent.list,
       clone: this.$parent.clone,
       moveAble: this.$parent.moveAble,
+      resizeAble: this.$parent.resizeAble,
       handleSelector: this.$parent.handleSelector,
       idPath: this.$parent.idPath,
       gridXPath: this.$parent.gridXPath,
@@ -97,7 +111,12 @@ export default {
     },
     onDragStart(evt) {
       evt.dataTransfer.effectAllowed = 'copy'
-      const localBeforeData = { rootId: this.rootId, item: this.curr, ind: this.index }
+      const localBeforeData = {
+        rootId: this.rootId,
+        item: this.curr,
+        ind: this.index,
+        event: 'move'
+      }
       Kit.setLocal(Consts.LOCAL_KEY_DATA, localBeforeData)
       const localAfterData = { rootId: this.rootId, moved: false }
       Kit.setLocal(Consts.LOCAL_KEY_STAT, localAfterData)
@@ -120,6 +139,25 @@ export default {
       this.$parent.setOpts({ dragging: false })
     },
     onDragEnter(evt) {
+      this.$parent.setOpts({ dragging: true })
+    },
+    onResizeStart(evt) {
+      evt.dataTransfer.effectAllowed = 'move'
+      const localBeforeData = {
+        rootId: this.rootId,
+        item: this.curr,
+        ind: this.index,
+        event: 'resize'
+      }
+      Kit.setLocal(Consts.LOCAL_KEY_DATA, localBeforeData)
+      this.cache.display = this.root.style.display
+      setTimeout(() => (this.root.style.display = 'none'), 0)
+    },
+    onResizeEnd(evt) {
+      this.root.style.display = this.cache.display
+      this.$parent.setOpts({ dragging: false })
+    },
+    onResizeEnter(evt) {
       this.$parent.setOpts({ dragging: true })
     },
     getItemProp(item, prop) {

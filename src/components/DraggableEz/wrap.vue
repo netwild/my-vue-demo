@@ -5,16 +5,17 @@
     :style="layoutStyle"
     ref="layoutRoot"
     class="ez-drag-layout-root"
-    @dragenter.self.prevent="onDragEnter"
-    @dragover.self="onDragOver"
-    @dragleave.self.prevent="onDragLeave"
-    @drop.self.prevent="onDrop"
+    @dragenter.self.prevent.stop="onDragEnter"
+    @dragover.self.stop="onDragOver"
+    @dragleave.self.prevent.stop="onDragLeave"
+    @drop.self.prevent.stop="onDrop"
   >
     <slot
       :rootId="rootId"
       :list="list"
       :clone="clone"
       :moveAble="moveAble"
+      :resizeAble="resizeAble"
       :handleSelector="handleSelector"
       :layout="layout"
       :idPath="idPath"
@@ -64,6 +65,10 @@ export default {
     moveAble: {
       type: Boolean,
       default: true
+    },
+    resizeAble: {
+      type: Boolean,
+      default: false
     },
     handleSelector: {
       type: String,
@@ -148,7 +153,7 @@ export default {
       rootOrigin: [0, 0],
       rootId: Kit.genUUID(),
       dragging: false,
-      curr: { ind: 0, item: {}, rootId: null },
+      curr: { ind: 0, item: {}, rootId: null, event: null },
       cache: {
         opacity: null,
         gridx: null,
@@ -239,9 +244,16 @@ export default {
       this.dragging = true
     },
     onDragOver(evt) {
-      if (this.pushAble) {
-        evt.preventDefault()
-        if (this.layout === 'grid') this.placeholderGrid(evt)
+      if (this.curr.event === 'move') {
+        if (this.pushAble) {
+          evt.preventDefault()
+          if (this.layout === 'grid') this.placeholderGrid(evt)
+        }
+      } else if (this.curr.event === 'resize') {
+        if (this.curr.rootId === this.rootId) {
+          evt.preventDefault()
+          if (this.layout === 'grid') this.resizeholderGrid(evt)
+        }
       }
     },
     onDragLeave(evt) {
@@ -296,6 +308,20 @@ export default {
         this.holder.gridw = autoRect.w
         this.holder.gridh = autoRect.h
       }
+    },
+    resizeholderGrid(evt) {
+      let mousePos = [evt.clientX - this.rootOrigin[0], evt.clientY - this.rootOrigin[1]]
+      let insGridx = this.cache.gridx
+      let insGridy = this.cache.gridy
+
+      let insRectw = insGridw * this.colWidth
+      let insRecth = insGridh * this.rowHeight
+
+      let areaPos = [mousePos[0] - insRectw / 2, mousePos[1] - insRecth / 2]
+      let areaGridx = Math.ceil(areaPos[0] / this.colWidth)
+      let areaGridy = Math.ceil(areaPos[1] / this.rowHeight)
+      areaGridw = Math.max(1, Math.min(this.gridCols - insGridw + 1, areaGridx))
+      areaGridh = Math.max(1, Math.min(this.gridRows - insGridh + 1, areaGridy))
     },
     getMatrixRect(x, y, w, h) {
       return this.gridNodeUseful
