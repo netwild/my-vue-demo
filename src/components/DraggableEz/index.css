@@ -2,7 +2,7 @@
   position: relative;
   height: 100%;
   overflow: hidden;
-  .ez-drag-layout-item{
+  .ez-drag-layout-item {
     position: relative;
     overflow: hidden;
     .ez-drag-resize-handle {
@@ -11,8 +11,8 @@
       height: 10px;
       right: 0;
       bottom: 0;
-      background-color: rgba(255,255,255, .5);
-      border: 1px solid rgba(0,0,0, .5);
+      background-color: rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(0, 0, 0, 0.5);
       cursor: nwse-resize;
       /* display: none; */
     }
@@ -23,7 +23,6 @@
   .drag-holder {
     flex: 1;
     z-index: 999;
-    border-radius: 10px;
     pointer-events: none;
     &.holder-use {
       background: repeating-linear-gradient(

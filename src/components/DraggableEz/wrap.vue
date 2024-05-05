@@ -313,15 +313,20 @@ export default {
       let mousePos = [evt.clientX - this.rootOrigin[0], evt.clientY - this.rootOrigin[1]]
       let insGridx = this.cache.gridx
       let insGridy = this.cache.gridy
-
-      let insRectw = insGridw * this.colWidth
-      let insRecth = insGridh * this.rowHeight
-
-      let areaPos = [mousePos[0] - insRectw / 2, mousePos[1] - insRecth / 2]
-      let areaGridx = Math.ceil(areaPos[0] / this.colWidth)
-      let areaGridy = Math.ceil(areaPos[1] / this.rowHeight)
-      areaGridw = Math.max(1, Math.min(this.gridCols - insGridw + 1, areaGridx))
-      areaGridh = Math.max(1, Math.min(this.gridRows - insGridh + 1, areaGridy))
+      let insPosx = (insGridx - 1) * this.colWidth
+      let insPosy = (insGridy - 1) * this.rowHeight
+      let insRectw = mousePos[0] - insPosx
+      let insRecth = mousePos[1] - insPosy
+      let areaGridw = Math.ceil(insRectw / this.colWidth)
+      let areaGridh = Math.ceil(insRecth / this.rowHeight)
+      areaGridw = Math.max(1, Math.min(this.gridCols - insGridx + 1, areaGridw))
+      areaGridh = Math.max(1, Math.min(this.gridRows - insGridy + 1, areaGridh))
+      let matrixRect = this.getMatrixRect(insGridx, insGridy, areaGridw, areaGridh)
+      this.holder.used = !matrixRect.some(row => row.includes(1))
+      this.holder.gridx = insGridx
+      this.holder.gridy = insGridy
+      this.holder.gridw = areaGridw
+      this.holder.gridh = areaGridh
     },
     getMatrixRect(x, y, w, h) {
       return this.gridNodeUseful
