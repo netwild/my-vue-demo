@@ -5,8 +5,27 @@
     :style="layoutStyle"
     ref="layoutRoot"
     class="ez-drag-layout-root"
+    @dragenter.self.prevent="onDragEnter"
+    @dragover.self="onDragOver"
+    @dragleave.self.prevent="onDragLeave"
+    @drop.self.prevent="onDrop"
   >
-    <slot></slot>
+    <slot
+      :rootId="rootId"
+      :list="list"
+      :clone="clone"
+      :moveAble="moveAble"
+      :handleSelector="handleSelector"
+      :layout="layout"
+      :idPath="idPath"
+      :gridXPath="gridXPath"
+      :gridYPath="gridYPath"
+      :gridWPath="gridWPath"
+      :gridHPath="gridHPath"
+      :gridColsDef="gridColsDef"
+      :gridRowsDef="gridRowsDef"
+      :setOpts="setOpts"
+    ></slot>
     <div
       class="drag-holder"
       :class="[holder.used ? 'holder-use' : 'holder-dis']"
@@ -19,14 +38,9 @@
 </template>
 
 <script>
+import Consts from './consts'
 import Kit from './kit'
 import elementResizeDetectorMaker from 'element-resize-detector'
-const CONSTS = {
-  LOCAL_KEY_DATA: 'EZ_DRAG_DATA_TRANSFER',
-  LOCAL_KEY_STAT: 'EZ_DRAG_DATA_STAT',
-  EL_ATTR_EXIST: 'ezlisten',
-  EL_ATTR_UUID: 'ezid'
-}
 export default {
   name: 'ez-drag-layout',
   props: {
@@ -43,10 +57,6 @@ export default {
       type: Function,
       default: null
     },
-    pullAble: {
-      type: Boolean,
-      default: true
-    },
     pushAble: {
       type: Boolean,
       default: true
@@ -55,10 +65,6 @@ export default {
       type: Boolean,
       default: true
     },
-    itemSelector: {
-      type: String,
-      default: null
-    },
     handleSelector: {
       type: String,
       default: null
@@ -66,6 +72,52 @@ export default {
     layout: {
       type: String,
       default: 'normal'
+    },
+    FlexDir: {
+      type: String,
+      default: 'row'
+    },
+    FlexMainAlign: {
+      type: String,
+      default: 'space-between'
+    },
+    FlexItemAlign: {
+      type: String,
+      default: 'stretch'
+    },
+    FlexMargin: {
+      type: Number,
+      default: 10
+    },
+    idPath: {
+      type: Array,
+      default() {
+        return ['base', 'id']
+      }
+    },
+    gridXPath: {
+      type: Array,
+      default() {
+        return ['props', 'gridx']
+      }
+    },
+    gridYPath: {
+      type: Array,
+      default() {
+        return ['props', 'gridy']
+      }
+    },
+    gridWPath: {
+      type: Array,
+      default() {
+        return ['props', 'gridw']
+      }
+    },
+    gridHPath: {
+      type: Array,
+      default() {
+        return ['props', 'gridh']
+      }
     },
     gridCols: {
       type: Number,
@@ -86,46 +138,6 @@ export default {
     gridGap: {
       type: Number,
       default: 10
-    },
-    FlexDir: {
-      type: String,
-      default: 'row'
-    },
-    FlexMainAlign: {
-      type: String,
-      default: 'space-between'
-    },
-    FlexItemAlign: {
-      type: String,
-      default: 'stretch'
-    },
-    FlexMargin: {
-      type: Number,
-      default: 10
-    },
-    itemGridXPath: {
-      type: Array,
-      default() {
-        return ['props', 'gridx']
-      }
-    },
-    itemGridYPath: {
-      type: Array,
-      default() {
-        return ['props', 'gridy']
-      }
-    },
-    itemGridWPath: {
-      type: Array,
-      default() {
-        return ['props', 'gridw']
-      }
-    },
-    itemGridHPath: {
-      type: Array,
-      default() {
-        return ['props', 'gridh']
-      }
     }
   },
   data() {
@@ -135,7 +147,6 @@ export default {
       rootHeight: 0,
       rootOrigin: [0, 0],
       rootId: Kit.genUUID(),
-      elements: [],
       dragging: false,
       curr: { ind: 0, item: {}, rootId: null },
       cache: {
@@ -155,11 +166,7 @@ export default {
     }
   },
   mounted() {
-    this.rootRect()
-    this.initEvents()
-  },
-  updated() {
-    this.initEvents()
+    this.rootResizeListen()
   },
   beforeDestroy() {
     if (Kit.notNull(this.erd)) this.erd.uninstall(this.$refs.layoutRoot)
@@ -210,7 +217,7 @@ export default {
     }
   },
   methods: {
-    rootRect() {
+    rootResizeListen() {
       this.erd = elementResizeDetectorMaker()
       this.erd.listenTo(this.$refs.layoutRoot, elm => {
         this.rootWidth = elm.offsetWidth
@@ -219,125 +226,25 @@ export default {
         this.rootOrigin = [rect.left + window.scrollX, rect.top + window.scrollY]
       })
     },
-    initEvents() {
-      const root = this.$refs.layoutRoot
-      if (Kit.isEmpty(root.dataset[CONSTS.EL_ATTR_EXIST])) {
-        this.addItemEvent(root, null, 'dragenter', this.onWrapDragEnter)
-        this.addItemEvent(root, null, 'dragover', this.onWrapDragOver)
-        this.addItemEvent(root, null, 'dragleave', this.onWrapDragLeave)
-        this.addItemEvent(root, null, 'drop', this.onWrapDrop)
-        root.dataset[CONSTS.EL_ATTR_EXIST] = true
-        root.dataset[CONSTS.EL_ATTR_UUID] = this.rootId
-      }
-
-      const erdEls = root.getElementsByTagName('object')
-      let erdEl = null
-      if (erdEls.length > 0) erdEl = root.removeChild(erdEls[0])
-
-      if (Kit.notEmpty(this.itemSelector)) {
-        this.elements = Array.from(root.querySelectorAll(this.itemSelector))
-      } else {
-        this.elements = Array.from(root.children)
-      }
-      this.elements.forEach((el, ind) => {
-        if (Kit.isEmpty(el.dataset[CONSTS.EL_ATTR_EXIST])) {
-          el.setAttribute('draggable', 'true')
-          el.classList.add('ez-drag-layout-item')
-          el.dataset[CONSTS.EL_ATTR_EXIST] = true
-          this.addItemEvent(el, ind, 'dragstart', this.onItemDragStart)
-          this.addItemEvent(el, ind, 'dragend', this.onItemDragEnd)
-          this.addItemEvent(el, ind, 'dragenter', this.onItemDragEnter)
-          this.addItemEvent(el, ind, 'dragover', this.onItemDragOver)
-          this.addItemEvent(el, ind, 'dragleave', this.onItemDragLeave)
-          this.addItemEvent(el, ind, 'drop', this.onItemDrop)
-        }
-      })
-      if (erdEl) root.appendChild(erdEl)
+    setOpts(evt) {
+      this.dragging = evt.dragging
     },
-    addItemEvent(el, ind, evtName, handle) {
-      el.addEventListener(
-        evtName,
-        evt => {
-          if (evt.target === el && Kit.notNull(handle)) handle(evt, ind)
-        },
-        false
-      )
-    },
-    removeItemEvent(ind) {
-      var oldElement = this.elements[ind]
-      var newElement = oldElement.cloneNode(true)
-      oldElement.parentNode.replaceChild(newElement, oldElement)
-    },
-    onItemDragStart(evt, ind) {
-      evt.dataTransfer.effectAllowed = 'copy'
-
-      let item = this.list[ind]
-      if (Kit.notNull(this.clone)) item = this.clone(item)
-
-      this.setItemProp(item, 'gridx', 1, false)
-      this.setItemProp(item, 'gridy', 1, false)
-      this.setItemProp(item, 'gridw', this.gridColsDef, false)
-      this.setItemProp(item, 'gridh', this.gridRowsDef, false)
-
-      const data = { ind, item, rootId: this.rootId }
-      Kit.setLocal(CONSTS.LOCAL_KEY_DATA, data)
-      Kit.setLocal(CONSTS.LOCAL_KEY_STAT, { moved: false })
-
-      if (this.moveAble) {
-        const img = new Image()
-        img.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><path /></svg>"
-        evt.dataTransfer.setDragImage(img, 0, 0)
-
-        const el = evt.target
-        this.cache.display = el.style.display
-        setTimeout(() => {
-          // el.style.display = 'none'
-        }, 0)
-      }
-    },
-    onItemDragEnd(evt, ind) {
-      evt.preventDefault()
-      this.dragging = false
-      if (Kit.isNull(this.clone)) {
-        const ret = Kit.getLocal(CONSTS.LOCAL_KEY_STAT)
-        if (ret && ret.moved) {
-          this.list.splice(this.curr.ind, 1)
-        } else {
-          evt.target.style.display = this.cache.display
-        }
-      }
-    },
-    onItemDragEnter(evt, ind) {
-      evt.preventDefault()
-      this.dragging = true
-    },
-    onItemDragOver(evt, ind) {
-      evt.preventDefault()
-    },
-    onItemDragLeave(evt, ind) {
-      evt.preventDefault()
-    },
-    onItemDrop(evt, ind) {
-      evt.preventDefault()
-    },
-    onWrapDragEnter(evt) {
-      evt.preventDefault()
-      const item = Kit.getLocal(CONSTS.LOCAL_KEY_DATA)
-      this.curr = { ...item }
+    onDragEnter(evt) {
+      const localBeforeData = Kit.getLocal(Consts.LOCAL_KEY_DATA)
+      this.curr = { ...localBeforeData }
       this.cache.gridx = this.getItemProp(this.curr.item, 'gridx')
       this.cache.gridy = this.getItemProp(this.curr.item, 'gridy')
       this.cache.gridw = this.getItemProp(this.curr.item, 'gridw')
       this.cache.gridh = this.getItemProp(this.curr.item, 'gridh')
       this.dragging = true
     },
-    onWrapDragOver(evt) {
+    onDragOver(evt) {
       if (this.pushAble) {
         evt.preventDefault()
         if (this.layout === 'grid') this.placeholderGrid(evt)
       }
     },
-    onWrapDragLeave(evt) {
-      evt.preventDefault()
+    onDragLeave(evt) {
       this.dragging = false
       if (this.curr.rootId === this.rootId) {
         this.setItemProp(this.curr.item, 'gridx', this.cache.gridx, true)
@@ -346,8 +253,7 @@ export default {
         this.setItemProp(this.curr.item, 'gridh', this.cache.gridh, true)
       }
     },
-    onWrapDrop(evt) {
-      evt.preventDefault()
+    onDrop(evt) {
       this.dragging = false
       let item = this.curr.rootId === this.rootId ? this.list[this.curr.ind] : this.curr.item
       if (this.holder.used) {
@@ -357,7 +263,7 @@ export default {
         this.setItemProp(item, 'gridh', this.holder.gridh, true)
         if (this.curr.rootId !== this.rootId) {
           this.list.push(item)
-          Kit.setLocal(CONSTS.LOCAL_KEY_STAT, { moved: true })
+          Kit.setLocal(Consts.LOCAL_KEY_STAT, { rootId: this.rootId, moved: true })
         }
       }
     },
@@ -450,6 +356,7 @@ export default {
       return this.getItemPropNext(item, paths)
     },
     getItemPropNext(item, paths) {
+      if (Kit.isNull(item)) return null
       if (paths.length === 1) {
         return item[paths[0]]
       } else {
@@ -469,10 +376,11 @@ export default {
       }
     },
     getItemPropPath(propName) {
-      if (propName === 'gridx') return this.itemGridXPath
-      else if (propName === 'gridy') return this.itemGridYPath
-      else if (propName === 'gridw') return this.itemGridWPath
-      else if (propName === 'gridh') return this.itemGridHPath
+      if (propName === 'id') return this.idPath
+      else if (propName === 'gridx') return this.gridXPath
+      else if (propName === 'gridy') return this.gridYPath
+      else if (propName === 'gridw') return this.gridWPath
+      else if (propName === 'gridh') return this.gridHPath
       else return null
     }
   }

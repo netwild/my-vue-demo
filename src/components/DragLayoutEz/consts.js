@@ -1,0 +1,5 @@
+export default {
+  ROOT_ATTR_UUID: 'ezid',
+  LOCAL_KEY_DATA: 'EZ_DRAG_DATA_TRANSFER',
+  LOCAL_KEY_STAT: 'EZ_DRAG_DATA_STAT'
+}
