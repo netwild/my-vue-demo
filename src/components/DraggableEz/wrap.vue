@@ -1,3 +1,9 @@
+<!--
+ * @Author: Z.MingYu
+ * @Date: 2024-05-06 08:22:40
+ * @Description: 拖拽布局组件：容器
+-->
+
 <template>
   <component
     :is="tag"
@@ -143,6 +149,10 @@ export default {
     gridGap: {
       type: Number,
       default: 10
+    },
+    gridLines: {
+      type: Boolean,
+      default: true
     }
   },
   data() {
@@ -187,6 +197,7 @@ export default {
       return [
         `layout-${this.layout}`,
         `flex-dir-${this.FlexDir}`,
+        this.gridLines ? 'grid-lines-on' : 'grid-lines-off',
         this.dragging ? 'dragging-on' : 'dragging-off'
       ]
     },

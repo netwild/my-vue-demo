@@ -19,7 +19,7 @@
           </div>
         </div>
         <div class="wrap-body">
-          <draggable-wrap :list="lay.list" :layout="lay.mode" :resizeAble="true">
+          <draggable-wrap :list="lay.list" :layout="lay.mode" :resizeAble="true" :gridLines="true">
             <draggable-item
               v-for="(item, i) in lay.list"
               :key="item.base.id"
@@ -37,8 +37,7 @@
 
 <script>
 import Kit from '../../components/DraggableEz/kit'
-import DraggableWrap from '@/components/DraggableEz/wrap'
-import DraggableItem from '@/components/DraggableEz/item'
+import { DraggableWrap, DraggableItem } from '@/components/DraggableEz'
 export default {
   name: '',
   components: {

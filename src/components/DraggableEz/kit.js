@@ -1,3 +1,9 @@
+/*
+ * @Author: Z.MingYu
+ * @Date: 2024-05-06 08:22:12
+ * @Description: 拖拽布局组件函数库封装
+ */
+
 import { v4 as uuidv4 } from 'uuid'
 
 function isNull(val) {
