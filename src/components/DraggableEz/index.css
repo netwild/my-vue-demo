@@ -8,10 +8,13 @@
   position: relative;
   height: 100%;
   overflow: hidden;
-  .ez-drag-layout-item {
+  pointer-events: auto;
+  > .ez-drag-layout-item {
+    flex: 1;
+    height: 100%;
     position: relative;
     overflow: hidden;
-    .ez-drag-resize-handle {
+    > .ez-drag-resize-handle {
       position: absolute;
       width: 10px;
       height: 10px;
@@ -20,15 +23,16 @@
       background-color: rgba(255, 255, 255, 0.5);
       border: 1px solid rgba(0, 0, 0, 0.5);
       cursor: nwse-resize;
-      /* display: none; */
+      display: none;
     }
-    &:hover .ez-drag-resize-handle {
+    &:hover > .ez-drag-resize-handle {
       display: block;
     }
   }
-  .drag-holder {
+  > .drag-holder {
     flex: 1;
     z-index: 999;
+    position: relative;
     pointer-events: none;
     &.holder-use {
       background: repeating-linear-gradient(
@@ -55,12 +59,12 @@
     justify-content: var(--ez-flex-main-align);
     align-items: var(--ez-flex-item-align);
     &.flex-dir-row {
-      .ez-drag-layout-item:not(:first-child) {
+      > .ez-drag-layout-item:not(:first-child) {
         margin-left: var(--ez-flex-margin);
       }
     }
     &.flex-dir-column {
-      .ez-drag-layout-item:not(:first-child) {
+      > .ez-drag-layout-item:not(:first-child) {
         margin-top: var(--ez-flex-margin);
       }
     }
@@ -70,6 +74,7 @@
     gap: var(--ez-grid-padd);
     grid-template-columns: repeat(var(--ez-grid-cols), 1fr);
     grid-template-rows: repeat(var(--ez-grid-rows), 1fr);
+    background: rgba(255,255,255, .7);
     &.grid-lines-on::before {
       content: '';
       position: absolute;
@@ -77,28 +82,28 @@
       left: 0;
       right: 0;
       bottom: 0;
-      z-index: -1;
+      z-index: 0;
       pointer-events: none;
-      border-right: 1px solid #e0e0e0;
-      border-bottom: 1px solid #e0e0e0;
+      border-right: 1px solid #eee;
+      border-bottom: 1px solid #eee;
       background-size: var(--ez-grid-col-width) var(--ez-grid-row-height);
-      background-image: linear-gradient(to right, #e0e0e0 1px, transparent 1px),
-        linear-gradient(to bottom, #e0e0e0 1px, transparent 1px);
+      background-image: linear-gradient(to right, #eee 1px, transparent 1px),
+        linear-gradient(to bottom, #eee 1px, transparent 1px);
     }
   }
   &.dragging-on {
-    .ez-drag-layout-item {
+    > .ez-drag-layout-item {
       pointer-events: none;
     }
-    .drag-holder {
+    > .drag-holder {
       display: block;
     }
   }
   &.dragging-off {
-    .ez-drag-layout-item {
+    > .ez-drag-layout-item {
       pointer-events: auto;
     }
-    .drag-holder {
+    > .drag-holder {
       display: none;
     }
   }
