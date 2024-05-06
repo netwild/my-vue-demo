@@ -16,13 +16,14 @@
     overflow: hidden;
     > .ez-drag-resize-handle {
       position: absolute;
-      width: 10px;
-      height: 10px;
+      width: 20px;
+      height: 20px;
       right: 0;
       bottom: 0;
-      background-color: rgba(255, 255, 255, 0.5);
-      border: 1px solid rgba(0, 0, 0, 0.5);
+      background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAG0SURBVFhH7ZY7LARBHIcvhIRQeCaiEVoNFY2OTqlWKrQ6pUSiInqiIoLoqCQKtQKRKIi3ROERkSDx+H5zs3d7Zx+3bu9ykvuSLzO/zd7sPzuzM5cok0U3Vie7hkLnDPrwG2dNKnw2VNpWvGMnruJpEXJpEjhHMRBpDcRN6PjNuI6DJqXZQ/0w2yusx1zxGz+UL/Qq4BrrMFa85sj90GNswb8SuAb6UQ+ZMymN8/Bz2x7hX4rwGz+FBtUcDZmUximgAy9t/wCbMAp+44fiFCBUhBafU0QjxorXHN3iXbJryH4Tm/his58PqB2wHX3x+071+bQluyncRURRv6lBT6J+pzuoQRexVRcC6MV91P3juhAHr6gBG0wKZxR1/4JJlgrbOkQ5C2pt+2jbMFSwyNi83AVoDRzijElFwl2AzugN3DbpH6D5lLkygrp/zSRLPmsgKk6xOtxSlNdAPtygXmvg9upiEnX/vEkW979ioTXwhJ8mBWf1e3AAn1GnnbZoL4dxArUHTOMJ/iL7vA7LGmwXdS1XpzAD9xt4wy5cwbMc8gcuof6gVOE9Xvi4hWO4jGVKiUTiB5dut+hDd0IEAAAAAElFTkSuQmCC');
+      background-size: contain;
       cursor: nwse-resize;
+      opacity: .5;
       display: none;
     }
     &:hover > .ez-drag-resize-handle {
