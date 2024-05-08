@@ -245,6 +245,10 @@ export default {
       this.erd.listenTo(this.rootEl, (elm) => {
         this.rootWidth = elm.offsetWidth;
         this.rootHeight = elm.offsetHeight;
+        this.$emit("rootResize", {
+          width: this.rootWidth,
+          height: this.rootHeight,
+        });
       });
     },
     rootOriginListen() {
