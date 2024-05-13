@@ -1,12 +1,16 @@
 <template>
   <div class="container-wrap">
-    <div class="left-wrap">
-      <draggable-wrap :list="srcList" :pushAble="false" :moveAble="false" :clone="createIns">
-        <draggable-item v-for="(item, i) in srcList" :key="i" :index="i" class="item-wrap">
-          {{ item.base.name }}
-        </draggable-item>
-      </draggable-wrap>
-    </div>
+    <draggable-wrap
+      :list="srcList"
+      :pushAble="false"
+      :moveAble="false"
+      :clone="createIns"
+      class="left-wrap"
+    >
+      <draggable-item v-for="(item, i) in srcList" :key="i" :index="i" class="item-wrap">
+        {{ item.base.name }}
+      </draggable-item>
+    </draggable-wrap>
     <div class="right-wrap">
       <div class="dragg-wrap" v-for="(lay, i) in layouts" :key="i" :style="{ height: lay.height }">
         <div class="wrap-header">
@@ -111,11 +115,12 @@ body {
     height: 100%;
     border-right: 1px solid #999;
     padding: 15px;
-    .item-wrap {
+    > .item-wrap {
       padding: 20px 0;
       text-align: center;
       background-color: #cccccc;
       font-size: 14px;
+      height: auto;
       cursor: default;
       &:not(:first-child) {
         margin-top: 15px;
