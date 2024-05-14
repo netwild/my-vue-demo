@@ -14,12 +14,6 @@
     height: 100%;
     position: relative;
     overflow: hidden;
-    &.active-off {
-      pointer-events: none;
-    }
-    &.active-on {
-      pointer-events: auto;
-    }
     > .ez-drag-resize-handle {
       position: absolute;
       width: 20px;
@@ -110,11 +104,17 @@
     }
   }
   &.dragging-on {
+    > .ez-drag-layout-item {
+      pointer-events: none;
+    }
     > .drag-holder {
       display: block;
     }
   }
   &.dragging-off {
+    > .ez-drag-layout-item {
+      pointer-events: auto;
+    }
     > .drag-holder {
       display: none;
     }

@@ -10,17 +10,17 @@
     :class="classes"
     :style="styles"
     ref="layoutItem"
-    draggable="true"
+    draggable="enable && wrap.moveAble"
     class="ez-drag-layout-item"
     @dragstart.self.stop="onDragStart"
     @dragend.self.stop.prevent="onDragEnd"
-    @dragenter.self.stop.prevent
+    @dragenter.self.stop.prevent="onDragEnter"
     @dragleave.self.stop.prevent
     @dragover.self.stop.prevent
   >
     <slot></slot>
     <div
-      v-if="wrap.resizeAble"
+      v-if="enable && wrap.resizeAble"
       class="ez-drag-resize-handle"
       draggable="true"
       @dragstart.self.stop="onResizeStart"
@@ -44,16 +44,15 @@ export default {
       type: Number,
       required: true
     },
-    active: {
+    enable: {
       type: Boolean,
-      required: false
+      default: true
     }
   },
   data() {
     return {
       root: null,
       wrap: {
-        roots: this.$parent.roots,
         list: this.$parent.list,
         clone: this.$parent.clone,
         pushAble: this.$parent.pushAble,
@@ -70,9 +69,10 @@ export default {
         gridRowsDef: this.$parent.gridRowsDef,
         itemWPath: this.$parent.itemWPath,
         itemHPath: this.$parent.itemHPath,
-        flexDir: this.$parent.flexDir
+        flexDir: this.$parent.flexDir,
+        roots: this.$parent.roots,
+        related: this.$parent.related
       },
-
       cache: {
         curr: {},
         display: null
@@ -107,7 +107,7 @@ export default {
       return this.getItemProp(this.cache.curr, 'gridh')
     },
     classes() {
-      return [!this.wrap.moveAble || this.active ? 'active-on' : 'active-off']
+      return [this.enable ? 'enable' : 'disable']
     },
     styles() {
       let obj = {}
@@ -177,9 +177,11 @@ export default {
         }
         this.root.style.display = this.cache.display
       }
-      this.$parent.setOpts({ dragging: false })
+      this.wrap.related.dragging = false
     },
-    onDragEnter(evt) {},
+    onDragEnter(evt) {
+      this.wrap.related.dragging = true
+    },
     onDragLeave(evt) {},
     onResizeStart(evt) {
       evt.dataTransfer.effectAllowed = 'move'
@@ -195,10 +197,10 @@ export default {
     },
     onResizeEnd(evt) {
       this.root.style.display = this.cache.display
-      this.$parent.setOpts({ dragging: false })
+      this.wrap.related.dragging = false
     },
     onResizeEnter(evt) {
-      this.$parent.setOpts({ dragging: true })
+      this.wrap.related.dragging = true
     },
     getItemProp(item, prop) {
       const paths = this.getItemPropPath(prop)

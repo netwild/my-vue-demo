@@ -153,7 +153,9 @@ function getWrapData() {
       itemw: null,
       itemh: null
     },
-    dragging: false
+    related: {
+      dragging: false
+    }
   }
 }
 

@@ -17,7 +17,6 @@
     @drop.self.stop.prevent="onDrop"
   >
     <slot
-      :roots="roots"
       :list="list"
       :clone="clone"
       :moveAble="moveAble"
@@ -33,7 +32,8 @@
       :itemWPath="itemWPath"
       :itemHPath="itemHPath"
       :flexDir="flexDir"
-      :setOpts="setOpts"
+      :roots="roots"
+      :related="related"
     ></slot>
     <div
       class="drag-holder"
@@ -81,7 +81,7 @@ export default {
         `layout-${this.layout}`,
         `flex-dir-${this.flexDir}`,
         this.gridLines ? 'grid-lines-on' : 'grid-lines-off',
-        this.dragging ? 'dragging-on' : 'dragging-off'
+        this.related.dragging ? 'dragging-on' : 'dragging-off'
       ]
     },
     layoutStyle() {
@@ -142,7 +142,7 @@ export default {
       this.cache.gridh = this.getItemProp(this.curr.item, 'gridh')
       this.cache.itemw = this.getItemProp(this.curr.item, 'itemw')
       this.cache.itemh = this.getItemProp(this.curr.item, 'itemh')
-      this.dragging = true
+      this.related.dragging = true
     },
     onDragOver(evt) {
       if (this.curr.eventType === 'move') {
@@ -166,7 +166,7 @@ export default {
         this.setItemProp(this.curr.item, 'itemw', this.cache.itemw, true)
         this.setItemProp(this.curr.item, 'itemh', this.cache.itemh, true)
       }
-      this.dragging = false
+      this.related.dragging = false
     },
     onDrop(evt) {
       let item = this.curr.rootId === this.roots.id ? this.list[this.curr.index] : this.curr.item
@@ -185,10 +185,7 @@ export default {
           })
         }
       }
-      this.dragging = false
-    },
-    setOpts(evt) {
-      this.dragging = evt.dragging
+      this.related.dragging = false
     },
     placeholderGrid(evt) {
       let mousePos = [evt.clientX - this.roots.x, evt.clientY - this.roots.y]
