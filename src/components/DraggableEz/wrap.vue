@@ -16,25 +16,7 @@
     @dragover.self.stop="onDragOver"
     @drop.self.stop.prevent="onDrop"
   >
-    <slot
-      :list="list"
-      :clone="clone"
-      :moveAble="moveAble"
-      :resizeAble="resizeAble"
-      :layout="layout"
-      :idPath="idPath"
-      :gridXPath="gridXPath"
-      :gridYPath="gridYPath"
-      :gridWPath="gridWPath"
-      :gridHPath="gridHPath"
-      :gridColsDef="gridColsDef"
-      :gridRowsDef="gridRowsDef"
-      :itemWPath="itemWPath"
-      :itemHPath="itemHPath"
-      :flexDir="flexDir"
-      :roots="roots"
-      :related="related"
-    ></slot>
+    <slot :wrapData="wrapData" :related="related"></slot>
     <div
       class="drag-holder"
       :class="[holder.vali ? 'holder-able' : 'holder-deny']"
@@ -113,6 +95,28 @@ export default {
         }
       })
       return map
+    },
+    wrapData() {
+      return {
+        list: this.list,
+        clone: this.clone,
+        moveAble: this.moveAble,
+        resizeAble: this.resizeAble,
+        layout: this.layout,
+        heightMode: this.heightMode,
+        idPath: this.idPath,
+        gridXPath: this.gridXPath,
+        gridYPath: this.gridYPath,
+        gridWPath: this.gridWPath,
+        gridHPath: this.gridHPath,
+        gridColsDef: this.gridColsDef,
+        gridRowsDef: this.gridRowsDef,
+        itemWPath: this.itemWPath,
+        itemHPath: this.itemHPath,
+        flexDir: this.flexDir,
+        roots: this.roots,
+        related: this.related
+      }
     }
   },
   methods: {

@@ -35,6 +35,10 @@ function getWrapProps() {
       type: String,
       default: 'normal'
     },
+    heightMode: {
+      type: String,
+      default: 'screen'
+    },
     itemMargin: {
       type: Number,
       default: 15

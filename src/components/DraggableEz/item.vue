@@ -10,7 +10,7 @@
     :class="classes"
     :style="styles"
     ref="layoutItem"
-    draggable="enable && wrap.moveAble"
+    draggable="enable && wrapData.moveAble"
     class="ez-drag-layout-item"
     @dragstart.self.stop="onDragStart"
     @dragend.self.stop.prevent="onDragEnd"
@@ -20,7 +20,7 @@
   >
     <slot></slot>
     <div
-      v-if="enable && wrap.resizeAble"
+      v-if="enable && wrapData.resizeAble"
       class="ez-drag-resize-handle"
       draggable="true"
       @dragstart.self.stop="onResizeStart"
@@ -52,27 +52,7 @@ export default {
   data() {
     return {
       root: null,
-      wrap: {
-        list: this.$parent.list,
-        clone: this.$parent.clone,
-        pushAble: this.$parent.pushAble,
-        moveAble: this.$parent.moveAble,
-        resizeAble: this.$parent.resizeAble,
-        handleSelector: this.$parent.handleSelector,
-        layout: this.$parent.layout,
-        idPath: this.$parent.idPath,
-        gridXPath: this.$parent.gridXPath,
-        gridYPath: this.$parent.gridYPath,
-        gridWPath: this.$parent.gridWPath,
-        gridHPath: this.$parent.gridHPath,
-        gridColsDef: this.$parent.gridColsDef,
-        gridRowsDef: this.$parent.gridRowsDef,
-        itemWPath: this.$parent.itemWPath,
-        itemHPath: this.$parent.itemHPath,
-        flexDir: this.$parent.flexDir,
-        roots: this.$parent.roots,
-        related: this.$parent.related
-      },
+      related: this.$parent.related,
       cache: {
         curr: {},
         display: null
@@ -85,14 +65,19 @@ export default {
   updated() {},
   beforeDestroy() {},
   computed: {
+    wrapData() {
+      return this.$parent.wrapData
+    },
     item() {
-      return this.wrap.list[this.index]
+      return this.wrapData.list[this.index]
     },
     itemw() {
       return this.getItemProp(this.cache.curr, 'itemw')
     },
     itemh() {
-      return this.getItemProp(this.cache.curr, 'itemh')
+      const h = this.getItemProp(this.cache.curr, 'itemh')
+      if (this.wrapData.heightMode === 'screen') return h
+      else return Kit.ifEmpty(h, 200)
     },
     gridx() {
       return this.getItemProp(this.cache.curr, 'gridx')
@@ -111,11 +96,11 @@ export default {
     },
     styles() {
       let obj = {}
-      if (this.wrap.layout === 'grid') {
+      if (this.wrapData.layout === 'grid') {
         obj['grid-column'] = `${this.gridx} / span ${this.gridw}`
         obj['grid-row'] = `${this.gridy} / span ${this.gridh}`
-      } else if (this.wrap.layout === 'flex') {
-        if (this.wrap.flexDir === 'row') {
+      } else if (this.wrapData.layout === 'flex') {
+        if (this.wrapData.flexDir === 'row') {
           if (Kit.isEmpty(this.itemw) || this.itemw === 0) obj['flex'] = 1
           else obj['width'] = `${this.itemw}px`
         } else {
@@ -123,12 +108,8 @@ export default {
           else obj['height'] = `${this.itemh}px`
         }
       } else {
-        if (Kit.isEmpty(this.itemw)) obj['width'] = 'auto'
-        else if (this.itemw === 0) obj['width'] = '100%'
-        else obj['width'] = `${this.itemw}px`
-        if (Kit.isEmpty(this.itemh)) obj['height'] = 'auto'
-        else if (this.itemh === 0) obj['height'] = '100%'
-        else obj['height'] = `${this.itemh}px`
+        if (Kit.notEmpty(this.itemw)) obj['width'] = `${this.itemw}px`
+        if (Kit.notEmpty(this.itemh)) obj['height'] = `${this.itemh}px`
       }
       return obj
     }
@@ -136,32 +117,32 @@ export default {
   methods: {
     initData() {
       this.root = this.$refs.layoutItem
-      this.cache.curr = this.wrap.moveAble ? this.item : Kit.deepClone(this.item)
+      this.cache.curr = this.wrapData.moveAble ? this.item : Kit.deepClone(this.item)
     },
     onDragStart(evt) {
       // console.log(this.index, evt)
       evt.dataTransfer.effectAllowed = 'copy'
 
-      if (!this.wrap.moveAble && Kit.notNull(this.wrap.clone)) {
-        this.cache.curr = this.wrap.clone(this.item)
+      if (!this.wrapData.moveAble && Kit.notNull(this.wrapData.clone)) {
+        this.cache.curr = this.wrapData.clone(this.item)
       }
 
       this.setItemProp(this.cache.curr, 'gridx', 1, false)
       this.setItemProp(this.cache.curr, 'gridy', 1, false)
-      this.setItemProp(this.cache.curr, 'gridw', this.wrap.gridColsDef, false)
-      this.setItemProp(this.cache.curr, 'gridh', this.wrap.gridRowsDef, false)
+      this.setItemProp(this.cache.curr, 'gridw', this.wrapData.gridColsDef, false)
+      this.setItemProp(this.cache.curr, 'gridh', this.wrapData.gridRowsDef, false)
 
       const localBeforeData = {
-        rootId: this.wrap.roots.id,
+        rootId: this.wrapData.roots.id,
         item: this.cache.curr,
         index: this.index,
         eventType: 'move'
       }
 
       Kit.setLocal(Common.LOCAL_KEY_DATA, localBeforeData)
-      const localAfterData = { rootId: this.wrap.roots.id, moved: false }
+      const localAfterData = { rootId: this.wrapData.roots.id, moved: false }
       Kit.setLocal(Common.LOCAL_KEY_STAT, localAfterData)
-      if (this.wrap.moveAble) {
+      if (this.wrapData.moveAble) {
         const img = new Image()
         img.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><path /></svg>"
         evt.dataTransfer.setDragImage(img, 0, 0)
@@ -170,23 +151,23 @@ export default {
       }
     },
     onDragEnd(evt) {
-      if (this.wrap.moveAble) {
+      if (this.wrapData.moveAble) {
         const ret = Kit.getLocal(Common.LOCAL_KEY_STAT)
-        if (ret && ret.moved && ret.rootId !== this.wrap.roots.id) {
-          this.wrap.list.splice(this.index, 1)
+        if (ret && ret.moved && ret.rootId !== this.wrapData.roots.id) {
+          this.wrapData.list.splice(this.index, 1)
         }
         this.root.style.display = this.cache.display
       }
-      this.wrap.related.dragging = false
+      this.related.dragging = false
     },
     onDragEnter(evt) {
-      this.wrap.related.dragging = true
+      // this.related.dragging = true
     },
     onDragLeave(evt) {},
     onResizeStart(evt) {
       evt.dataTransfer.effectAllowed = 'move'
       const localBeforeData = {
-        rootId: this.wrap.roots.id,
+        rootId: this.wrapData.roots.id,
         item: this.cache.curr,
         index: this.index,
         eventType: 'resize'
@@ -197,10 +178,10 @@ export default {
     },
     onResizeEnd(evt) {
       this.root.style.display = this.cache.display
-      this.wrap.related.dragging = false
+      this.related.dragging = false
     },
     onResizeEnter(evt) {
-      this.wrap.related.dragging = true
+      this.related.dragging = true
     },
     getItemProp(item, prop) {
       const paths = this.getItemPropPath(prop)
@@ -227,13 +208,13 @@ export default {
       }
     },
     getItemPropPath(propName) {
-      if (propName === 'id') return this.wrap.idPath
-      else if (propName === 'itemw') return this.wrap.itemWPath
-      else if (propName === 'itemh') return this.wrap.itemHPath
-      else if (propName === 'gridx') return this.wrap.gridXPath
-      else if (propName === 'gridy') return this.wrap.gridYPath
-      else if (propName === 'gridw') return this.wrap.gridWPath
-      else if (propName === 'gridh') return this.wrap.gridHPath
+      if (propName === 'id') return this.wrapData.idPath
+      else if (propName === 'itemw') return this.wrapData.itemWPath
+      else if (propName === 'itemh') return this.wrapData.itemHPath
+      else if (propName === 'gridx') return this.wrapData.gridXPath
+      else if (propName === 'gridy') return this.wrapData.gridYPath
+      else if (propName === 'gridw') return this.wrapData.gridWPath
+      else if (propName === 'gridh') return this.wrapData.gridHPath
       else return null
     }
   }
