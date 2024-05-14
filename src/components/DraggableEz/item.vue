@@ -161,7 +161,7 @@ export default {
       this.related.dragging = false
     },
     onDragEnter(evt) {
-      // this.related.dragging = true
+      this.related.dragging = true
     },
     onDragLeave(evt) {},
     onResizeStart(evt) {
