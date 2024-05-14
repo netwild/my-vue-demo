@@ -8,116 +8,116 @@ function getWrapProps() {
   return {
     tag: {
       type: String,
-      default: 'div'
+      default: "div",
     },
     list: {
       type: Array,
       default: [],
-      required: true
+      required: true,
     },
     clone: {
       type: Function,
-      default: null
+      default: null,
     },
     pushAble: {
       type: Boolean,
-      default: true
+      default: true,
     },
     moveAble: {
       type: Boolean,
-      default: true
+      default: true,
     },
     resizeAble: {
       type: Boolean,
-      default: false
+      default: false,
     },
     layout: {
       type: String,
-      default: 'normal'
+      default: "normal",
     },
     heightMode: {
       type: String,
-      default: 'screen'
+      default: "screen",
     },
     itemMargin: {
       type: Number,
-      default: 15
+      default: 15,
     },
     flexDir: {
       type: String,
-      default: 'row'
+      default: "row",
     },
     flexMainAlign: {
       type: String,
-      default: 'space-between'
+      default: "space-between",
     },
     flexItemAlign: {
       type: String,
-      default: 'stretch'
+      default: "stretch",
     },
     idPath: {
       type: Array,
       default() {
-        return ['base', 'id']
-      }
+        return ["base", "id"];
+      },
     },
     itemWPath: {
       type: Array,
       default() {
-        return ['props', 'itemw']
-      }
+        return ["props", "itemw"];
+      },
     },
     itemHPath: {
       type: Array,
       default() {
-        return ['props', 'itemh']
-      }
+        return ["props", "itemh"];
+      },
     },
     gridXPath: {
       type: Array,
       default() {
-        return ['props', 'gridx']
-      }
+        return ["props", "gridx"];
+      },
     },
     gridYPath: {
       type: Array,
       default() {
-        return ['props', 'gridy']
-      }
+        return ["props", "gridy"];
+      },
     },
     gridWPath: {
       type: Array,
       default() {
-        return ['props', 'gridw']
-      }
+        return ["props", "gridw"];
+      },
     },
     gridHPath: {
       type: Array,
       default() {
-        return ['props', 'gridh']
-      }
+        return ["props", "gridh"];
+      },
     },
     gridCols: {
       type: Number,
-      default: 24
+      default: 24,
     },
     gridRows: {
       type: Number,
-      default: 24
+      default: 24,
     },
     gridLines: {
       type: Boolean,
-      default: true
+      default: true,
     },
     gridColsDef: {
       type: Number,
-      default: 6
+      default: 6,
     },
     gridRowsDef: {
       type: Number,
-      default: 6
-    }
-  }
+      default: 6,
+    },
+  };
 }
 
 function getWrapData() {
@@ -129,13 +129,13 @@ function getWrapData() {
       width: 0,
       height: 0,
       x: 0,
-      y: 0
+      y: 0,
     },
     curr: {
       item: {},
       index: 0,
       rootId: null,
-      eventType: null
+      eventType: null,
     },
     cache: {
       index: null,
@@ -145,7 +145,7 @@ function getWrapData() {
       gridw: null,
       gridh: null,
       itemw: null,
-      itemh: null
+      itemh: null,
     },
     holder: {
       vali: true,
@@ -155,18 +155,18 @@ function getWrapData() {
       gridw: null,
       gridh: null,
       itemw: null,
-      itemh: null
+      itemh: null,
     },
     related: {
-      dragging: false
-    }
-  }
+      dragging: false,
+    },
+  };
 }
 
 export default {
-  ROOT_ATTR_UUID: 'ezid',
-  LOCAL_KEY_DATA: 'EZ_DRAG_DATA_TRANSFER',
-  LOCAL_KEY_STAT: 'EZ_DRAG_DATA_STAT',
+  ROOT_ATTR_UUID: "ezid",
+  LOCAL_KEY_DATA: "EZ_DRAG_DATA_TRANSFER",
+  LOCAL_KEY_STAT: "EZ_DRAG_DATA_STAT",
   getWrapProps,
-  getWrapData
-}
+  getWrapData,
+};
