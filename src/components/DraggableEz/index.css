@@ -31,26 +31,30 @@
     }
   }
   > .drag-holder {
-    flex: 1;
     z-index: 999;
-    position: relative;
+    position: absolute;
     pointer-events: none;
+    .comp-area {
+      position: absolute;
+      border: 2px dashed rgba(0,0,0, .3);
+      transition: all .3s;
+    }
     &.holder-able {
       background: repeating-linear-gradient(
         135deg,
-        rgba(57, 181, 74, 0.3),
-        rgba(57, 181, 74, 0.3) 10px,
-        rgba(57, 181, 74, 0.2) 0,
-        rgba(57, 181, 74, 0.2) 20px
+        rgba(57, 181, 74, 0.2),
+        rgba(57, 181, 74, 0.2) 10px,
+        rgba(57, 181, 74, 0.1) 0,
+        rgba(57, 181, 74, 0.1) 20px
       );
     }
     &.holder-deny {
       background: repeating-linear-gradient(
         135deg,
-        rgba(211, 27, 27, 0.3),
-        rgba(211, 27, 27, 0.3) 10px,
-        rgba(211, 27, 27, 0.2) 0,
-        rgba(211, 27, 27, 0.2) 20px
+        rgba(211, 27, 27, 0.2),
+        rgba(211, 27, 27, 0.2) 10px,
+        rgba(211, 27, 27, 0.1) 0,
+        rgba(211, 27, 27, 0.1) 20px
       );
     }
   }
@@ -68,15 +72,9 @@
       > .ez-drag-layout-item:not(:first-child) {
         margin-left: var(--ez-item-margin);
       }
-      > .ez-drag-layout-item + .drag-holder {
-        margin-left: var(--ez-item-margin);
-      }
     }
     &.flex-dir-column {
       > .ez-drag-layout-item:not(:first-child) {
-        margin-top: var(--ez-item-margin);
-      }
-      > .ez-drag-layout-item + .drag-holder {
         margin-top: var(--ez-item-margin);
       }
     }
