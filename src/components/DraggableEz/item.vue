@@ -77,7 +77,7 @@ export default {
     itemh() {
       const h = this.getItemProp(this.cache.curr, "itemh");
       if (this.wrapData.heightMode === "screen") return h;
-      else return Kit.ifEmpty(h, 200);
+      else return Kit.ifEmpty(h, 300);
     },
     gridx() {
       return this.getItemProp(this.cache.curr, "gridx");

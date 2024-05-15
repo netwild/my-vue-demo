@@ -153,6 +153,7 @@ export default {
         if (this.pushAble) {
           evt.preventDefault();
           if (this.layout === "grid") this.placeholderGrid(evt);
+          else this.placeholderFlex(evt);
         }
       } else if (this.curr.eventType === "resize") {
         if (this.curr.rootId === this.roots.id) {
@@ -193,6 +194,15 @@ export default {
         }
       }
       this.related.dragging = false;
+    },
+    placeholderFlex(evt) {
+      this.holder.vali = true;
+      this.holder.gridx = this.cache.gridx;
+      this.holder.gridy = this.cache.gridy;
+      this.holder.gridw = this.cache.gridw;
+      this.holder.gridh = this.cache.gridh;
+      this.holder.itemw = this.cache.itemw;
+      this.holder.itemh = this.cache.itemh;
     },
     placeholderGrid(evt) {
       let mousePos = [evt.clientX - this.roots.x, evt.clientY - this.roots.y];
