@@ -30,15 +30,20 @@
       display: block;
     }
   }
-  > .drag-holder {
-    z-index: 999;
+  > .holder-mask {
     position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 999;
     pointer-events: none;
-    .comp-area {
-      position: absolute;
-      border: 2px dashed rgba(0,0,0, .3);
-      transition: all .3s;
-    }
+    border: 2px dashed rgba(0,0,0, .3);
+  }
+  > .holder-area {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 998;
+    pointer-events: none;
     &.holder-able {
       background: repeating-linear-gradient(
         135deg,
@@ -105,7 +110,7 @@
     > .ez-drag-layout-item {
       pointer-events: none;
     }
-    > .drag-holder {
+    > .holder-mask, > .holder-area {
       display: block;
     }
   }
@@ -113,7 +118,7 @@
     > .ez-drag-layout-item {
       pointer-events: auto;
     }
-    > .drag-holder {
+    > .holder-mask, > .holder-area {
       display: none;
     }
   }

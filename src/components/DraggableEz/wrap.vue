@@ -16,10 +16,11 @@
     @dragover.self.stop="onDragOver"
     @drop.self.stop.prevent="onDrop"
   >
-    <slot :wrapData="wrapData" :related="related"></slot>
-    <div v-if="pushAble || moveAble" class="drag-holder" :class="holderClass" :style="holderStyle">
-      <div class="comp-area" :style="areaStyle"></div>
-    </div>
+    <slot></slot>
+    <template v-if="pushAble || moveAble">
+      <div class="holder-mask" :style="maskStyle"></div>
+      <div class="holder-area" :style="areaStyle" :class="holderClass"></div>
+    </template>
   </component>
 </template>
 
@@ -77,20 +78,19 @@ export default {
     holderClass() {
       return [this.holder.vali ? 'holder-able' : 'holder-deny']
     },
-    holderStyle() {
+    maskStyle() {
       return {
-        left: `${this.holder.mask.x}px`,
-        top: `${this.holder.mask.y}px`,
         width: `${this.holder.mask.w}px`,
-        height: `${this.holder.mask.h}px`
+        height: `${this.holder.mask.h}px`,
+        transform: `translate(${this.holder.mask.x}px, ${this.holder.mask.y}px)`
       }
     },
     areaStyle() {
       return {
-        left: `${this.holder.area.x}px`,
-        top: `${this.holder.area.y}px`,
         width: `${this.holder.area.w}px`,
-        height: `${this.holder.area.h}px`
+        height: `${this.holder.area.h}px`,
+        transition: `all ${this.holder.area.trsi}s`,
+        transform: `translate(${this.holder.area.x}px, ${this.holder.area.y}px)`
       }
     },
     gridUseful() {
@@ -152,14 +152,8 @@ export default {
     },
     onDragEnter(evt) {
       this.rootPositionListen()
-      const localBeforeData = Kit.getLocal(Common.LOCAL_KEY_DATA)
-      this.curr = { ...localBeforeData }
-      this.cache.gridx = this.getItemProp(this.curr.item, 'gridx')
-      this.cache.gridy = this.getItemProp(this.curr.item, 'gridy')
-      this.cache.gridw = this.getItemProp(this.curr.item, 'gridw')
-      this.cache.gridh = this.getItemProp(this.curr.item, 'gridh')
-      this.cache.itemw = this.getItemProp(this.curr.item, 'itemw')
-      this.cache.itemh = this.getItemProp(this.curr.item, 'itemh')
+      this.setCache()
+      this.resetHolderArea()
       this.related.dragging = true
     },
     onDragOver(evt) {
@@ -206,12 +200,35 @@ export default {
       }
       this.related.dragging = false
     },
+    setCache() {
+      const localBeforeData = Kit.getLocal(Common.LOCAL_KEY_DATA)
+      this.curr = { ...localBeforeData }
+      this.cache.gridx = this.getItemProp(this.curr.item, 'gridx')
+      this.cache.gridy = this.getItemProp(this.curr.item, 'gridy')
+      this.cache.gridw = this.getItemProp(this.curr.item, 'gridw')
+      this.cache.gridh = this.getItemProp(this.curr.item, 'gridh')
+      this.cache.itemw = this.getItemProp(this.curr.item, 'itemw')
+      this.cache.itemh = this.getItemProp(this.curr.item, 'itemh')
+    },
+    resetHolderArea() {
+      this.holder.area.trsi = 0
+      if (this.layout === 'grid') {
+        if (this.curr.rootId === this.roots.id) {
+          this.holder.area.x = (this.cache.gridx - 1) * this.gridColw
+          this.holder.area.y = (this.cache.gridy - 1) * this.gridRowh
+          this.holder.area.w = this.cache.gridw * this.gridColw
+          this.holder.area.h = this.cache.gridh * this.gridRowh
+        } else {
+          this.holder.area.x = 0
+          this.holder.area.y = 0
+          this.holder.area.w = this.gridColsDef * this.gridColw
+          this.holder.area.h = this.gridRowsDef * this.gridRowh
+        }
+      }
+      this.holder.area.trsi = 0.3
+    },
     placeholderFlex(evt) {
       this.holder.vali = true
-      this.holder.gridx = this.cache.gridx
-      this.holder.gridy = this.cache.gridy
-      this.holder.gridw = this.cache.gridw
-      this.holder.gridh = this.cache.gridh
       this.holder.itemw = this.cache.itemw
       this.holder.itemh = this.cache.itemh
     },
@@ -243,18 +260,18 @@ export default {
         this.holder.gridy = areaGridy
         this.holder.gridw = insGridw
         this.holder.gridh = insGridh
-        this.holder.area.x = 0
-        this.holder.area.y = 0
-        this.holder.area.w = insRectw
-        this.holder.area.h = insRecth
+        this.holder.area.x = (areaGridx - 1) * this.gridColw
+        this.holder.area.y = (areaGridy - 1) * this.gridRowh
+        this.holder.area.w = insGridw * this.gridColw
+        this.holder.area.h = insGridh * this.gridRowh
       } else {
         this.holder.vali = true
         this.holder.gridx = areaGridx + autoRect.x
         this.holder.gridy = areaGridy + autoRect.y
         this.holder.gridw = autoRect.w
         this.holder.gridh = autoRect.h
-        this.holder.area.x = autoRect.x * this.gridColw
-        this.holder.area.y = autoRect.y * this.gridRowh
+        this.holder.area.x = (areaGridx + autoRect.x - 1) * this.gridColw
+        this.holder.area.y = (areaGridy + autoRect.y - 1) * this.gridRowh
         this.holder.area.w = autoRect.w * this.gridColw
         this.holder.area.h = autoRect.h * this.gridRowh
       }
@@ -277,14 +294,14 @@ export default {
       this.holder.mask.y = insPosy
       this.holder.mask.w = insRectw
       this.holder.mask.h = insRecth
-      this.holder.area.x = 0
-      this.holder.area.y = 0
-      this.holder.area.w = insRectw
-      this.holder.area.h = insRecth
       this.holder.gridx = insGridx
       this.holder.gridy = insGridy
       this.holder.gridw = areaGridw
       this.holder.gridh = areaGridh
+      this.holder.area.x = (insGridx - 1) * this.gridColw
+      this.holder.area.y = (insGridy - 1) * this.gridRowh
+      this.holder.area.w = areaGridw * this.gridColw
+      this.holder.area.h = areaGridh * this.gridRowh
     },
     getMatrixRect(x, y, w, h) {
       return this.gridUseful.slice(y - 1, y - 1 + h).map((sub, i) => sub.slice(x - 1, x - 1 + w))

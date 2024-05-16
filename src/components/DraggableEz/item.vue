@@ -166,11 +166,13 @@ export default {
       evt.dataTransfer.effectAllowed = 'move'
       const localBeforeData = {
         rootId: this.wrapData.roots.id,
-        item: this.cache.curr,
+        item: this.item,
         index: this.index,
         eventType: 'resize'
       }
       Kit.setLocal(Common.LOCAL_KEY_DATA, localBeforeData)
+      this.$parent.setCache()
+      this.$parent.resetHolderArea()
       this.cache.opacity = this.root.style.opacity
       setTimeout(() => (this.root.style.opacity = 0.5), 0)
     },

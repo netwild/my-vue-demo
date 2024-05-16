@@ -154,12 +154,13 @@ function getWrapData() {
       itemw: null,
       itemh: null,
       mask: {
-        x: null,
-        y: null,
-        w: 300,
-        h: 200
+        x: 0,
+        y: 0,
+        w: 0,
+        h: 0
       },
       area: {
+        trsi: 0,
         x: 0,
         y: 0,
         w: 0,
