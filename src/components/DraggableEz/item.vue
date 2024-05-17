@@ -128,8 +128,8 @@ export default {
         this.setItemProp(curr, 'gridy', 1, false)
         this.setItemProp(curr, 'gridw', this.wrapData.gridColsDef, false)
         this.setItemProp(curr, 'gridh', this.wrapData.gridRowsDef, false)
-        this.setItemProp(curr, 'itemw', null, false)
-        this.setItemProp(curr, 'itemh', null, false)
+        this.setItemProp(curr, 'itemw', this.itemw, false)
+        this.setItemProp(curr, 'itemh', this.itemh, false)
       }
       const localBeforeData = {
         rootId: this.wrapData.roots.id,
@@ -170,9 +170,9 @@ export default {
         eventType: 'resize'
       }
       Kit.setLocal(Common.LOCAL_KEY_DATA, localBeforeData)
+      this.opacity = this.el.style.opacity
       this.$parent.setCache()
       this.$parent.resetHolderArea()
-      this.opacity = this.el.style.opacity
       setTimeout(() => (this.el.style.opacity = 0.5), 0)
     },
     onResizeEnd(evt) {

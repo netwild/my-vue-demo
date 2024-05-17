@@ -230,8 +230,8 @@ export default {
     },
     placeholderFlex(evt) {
       this.holder.vali = true
-      this.holder.itemw = this.cache.itemw
-      this.holder.itemh = this.cache.itemh
+      this.holder.itemw = this.holder.mask.w = this.holder.area.w = this.cache.itemw || 300
+      this.holder.itemh = this.holder.mask.h = this.holder.area.h = this.cache.itemh || 200
     },
     placeholderGrid(evt) {
       let insGridw = this.cache.gridw
