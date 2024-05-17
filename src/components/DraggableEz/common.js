@@ -122,6 +122,7 @@ function getWrapProps() {
 
 function getWrapData() {
   return {
+    //容器信息
     roots: {
       id: null,
       el: null,
@@ -131,12 +132,14 @@ function getWrapData() {
       x: 0,
       y: 0
     },
+    //当前项目的原始信息
     curr: {
       item: {},
       index: 0,
       rootId: null,
       eventType: null
     },
+    //当前项目的关键信息（从原始信息中提取，方便处理）
     cache: {
       gridx: null,
       gridy: null,
@@ -145,6 +148,7 @@ function getWrapData() {
       itemw: null,
       itemh: null
     },
+    //占位符信息
     holder: {
       vali: true,
       gridx: null,
@@ -153,12 +157,14 @@ function getWrapData() {
       gridh: null,
       itemw: null,
       itemh: null,
+      //占位符边框
       mask: {
         x: 0,
         y: 0,
         w: 0,
         h: 0
       },
+      //占位符有效区域
       area: {
         trsi: 0,
         x: 0,
@@ -167,6 +173,7 @@ function getWrapData() {
         h: 0
       }
     },
+    //上下文环境
     related: {
       dragging: false
     }

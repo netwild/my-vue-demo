@@ -171,14 +171,6 @@ export default {
       }
     },
     onDragLeave(evt) {
-      if (this.curr.rootId === this.roots.id) {
-        this.setItemProp(this.curr.item, 'gridx', this.cache.gridx, true)
-        this.setItemProp(this.curr.item, 'gridy', this.cache.gridy, true)
-        this.setItemProp(this.curr.item, 'gridw', this.cache.gridw, true)
-        this.setItemProp(this.curr.item, 'gridh', this.cache.gridh, true)
-        this.setItemProp(this.curr.item, 'itemw', this.cache.itemw, true)
-        this.setItemProp(this.curr.item, 'itemh', this.cache.itemh, true)
-      }
       this.related.dragging = false
     },
     onDrop(evt) {
@@ -209,6 +201,15 @@ export default {
       this.cache.gridh = this.getItemProp(this.curr.item, 'gridh')
       this.cache.itemw = this.getItemProp(this.curr.item, 'itemw')
       this.cache.itemh = this.getItemProp(this.curr.item, 'itemh')
+      if (this.layout === 'grid') {
+        this.holder.itemw = this.cache.itemw
+        this.holder.itemh = this.cache.itemh
+      } else {
+        this.holder.gridx = this.cache.gridx
+        this.holder.gridy = this.cache.gridy
+        this.holder.gridw = this.cache.gridw
+        this.holder.gridh = this.cache.gridh
+      }
     },
     resetHolderArea() {
       this.holder.area.trsi = 0

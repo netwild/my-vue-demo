@@ -51,12 +51,8 @@ export default {
   },
   data() {
     return {
-      root: null,
-      related: this.$parent.related,
-      cache: {
-        curr: {},
-        opacity: null
-      }
+      el: null,
+      opacity: null
     }
   },
   mounted() {
@@ -72,24 +68,24 @@ export default {
       return this.wrapData.list[this.index]
     },
     itemw() {
-      return this.getItemProp(this.cache.curr, 'itemw')
+      return this.getItemProp(this.item, 'itemw')
     },
     itemh() {
-      const h = this.getItemProp(this.cache.curr, 'itemh')
+      const h = this.getItemProp(this.item, 'itemh')
       if (this.wrapData.heightMode === 'screen') return h
       else return Kit.ifEmpty(h, 300)
     },
     gridx() {
-      return this.getItemProp(this.cache.curr, 'gridx')
+      return this.getItemProp(this.item, 'gridx')
     },
     gridy() {
-      return this.getItemProp(this.cache.curr, 'gridy')
+      return this.getItemProp(this.item, 'gridy')
     },
     gridw() {
-      return this.getItemProp(this.cache.curr, 'gridw')
+      return this.getItemProp(this.item, 'gridw')
     },
     gridh() {
-      return this.getItemProp(this.cache.curr, 'gridh')
+      return this.getItemProp(this.item, 'gridh')
     },
     classes() {
       return [this.enable ? 'enable' : 'disable']
@@ -116,38 +112,41 @@ export default {
   },
   methods: {
     initData() {
-      this.root = this.$refs.layoutItem
-      this.cache.curr = this.wrapData.moveAble ? this.item : Kit.deepClone(this.item)
+      this.el = this.$refs.layoutItem
     },
     onDragStart(evt) {
-      // console.log(this.index, evt)
       evt.dataTransfer.effectAllowed = 'copy'
 
-      if (!this.wrapData.moveAble && Kit.notNull(this.wrapData.clone)) {
-        this.cache.curr = this.wrapData.clone(this.item)
+      let curr = this.item
+      if (!this.wrapData.moveAble) {
+        if (Kit.notNull(this.wrapData.clone)) {
+          curr = this.wrapData.clone(curr)
+        } else {
+          curr = Kit.deepClone(curr)
+        }
+        this.setItemProp(curr, 'gridx', 1, false)
+        this.setItemProp(curr, 'gridy', 1, false)
+        this.setItemProp(curr, 'gridw', this.wrapData.gridColsDef, false)
+        this.setItemProp(curr, 'gridh', this.wrapData.gridRowsDef, false)
+        this.setItemProp(curr, 'itemw', null, false)
+        this.setItemProp(curr, 'itemh', null, false)
       }
-
-      this.setItemProp(this.cache.curr, 'gridx', 1, false)
-      this.setItemProp(this.cache.curr, 'gridy', 1, false)
-      this.setItemProp(this.cache.curr, 'gridw', this.wrapData.gridColsDef, false)
-      this.setItemProp(this.cache.curr, 'gridh', this.wrapData.gridRowsDef, false)
-
       const localBeforeData = {
         rootId: this.wrapData.roots.id,
-        item: this.cache.curr,
+        item: curr,
         index: this.index,
         eventType: 'move'
       }
-
-      Kit.setLocal(Common.LOCAL_KEY_DATA, localBeforeData)
       const localAfterData = { rootId: this.wrapData.roots.id, moved: false }
+      Kit.setLocal(Common.LOCAL_KEY_DATA, localBeforeData)
       Kit.setLocal(Common.LOCAL_KEY_STAT, localAfterData)
+
       if (this.wrapData.moveAble) {
         const img = new Image()
         img.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><path /></svg>"
         evt.dataTransfer.setDragImage(img, 0, 0)
-        this.cache.opacity = this.root.style.opacity
-        setTimeout(() => (this.root.style.opacity = 0.5), 0)
+        this.opacity = this.el.style.opacity
+        setTimeout(() => (this.el.style.opacity = 0.5), 0)
       }
     },
     onDragEnd(evt) {
@@ -156,9 +155,9 @@ export default {
         if (ret && ret.moved && ret.rootId !== this.wrapData.roots.id) {
           this.wrapData.list.splice(this.index, 1)
         }
-        this.root.style.opacity = this.cache.opacity
+        this.el.style.opacity = this.opacity
       }
-      this.related.dragging = false
+      // this.$parent.related.dragging = false
     },
     onDragEnter(evt) {},
     onDragLeave(evt) {},
@@ -173,15 +172,15 @@ export default {
       Kit.setLocal(Common.LOCAL_KEY_DATA, localBeforeData)
       this.$parent.setCache()
       this.$parent.resetHolderArea()
-      this.cache.opacity = this.root.style.opacity
-      setTimeout(() => (this.root.style.opacity = 0.5), 0)
+      this.opacity = this.el.style.opacity
+      setTimeout(() => (this.el.style.opacity = 0.5), 0)
     },
     onResizeEnd(evt) {
-      this.root.style.opacity = this.cache.opacity
-      this.related.dragging = false
+      this.el.style.opacity = this.opacity
+      // this.$parent.related.dragging = false
     },
     onResizeEnter(evt) {
-      this.related.dragging = true
+      // this.$parent.related.dragging = true
     },
     getItemProp(item, prop) {
       const paths = this.getItemPropPath(prop)
