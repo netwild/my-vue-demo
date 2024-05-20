@@ -52,8 +52,7 @@ export default {
   data() {
     return {
       el: null,
-      opacity: null,
-      display: null
+      opacity: null
     }
   },
   mounted() {
@@ -146,8 +145,8 @@ export default {
         const img = new Image()
         img.src = "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg'><path /></svg>"
         evt.dataTransfer.setDragImage(img, 0, 0)
-        this.display = this.el.style.display
-        setTimeout(() => (this.el.style.display = 'none'), 0)
+        this.opacity = this.el.style.opacity
+        setTimeout(() => (this.el.style.opacity = 0.3), 0)
       }
     },
     onDragEnd(evt) {
@@ -156,7 +155,7 @@ export default {
         if (ret && ret.moved && ret.rootId !== this.wrapData.roots.id) {
           this.wrapData.list.splice(this.index, 1)
         }
-        this.el.style.display = this.display
+        this.el.style.opacity = this.opacity
       }
       // this.$parent.related.dragging = false
     },

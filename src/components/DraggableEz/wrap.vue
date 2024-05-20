@@ -282,7 +282,8 @@ export default {
           this.cache.index = 0
           this.holder.area.x = 0
         } else {
-          const rect = this.cache.flexRects.find(r => r.fx <= mou && r.tx > mou)
+          let rect = this.cache.flexRects.find(r => r.fx <= mou && r.tx > mou)
+          if (rect == null) rect = this.cache.flexRects[this.cache.flexRects.length - 1]
           if (mou < rect.ox) {
             this.cache.index = rect.ind
             this.holder.area.x = rect.fx - pre / 2
@@ -302,13 +303,14 @@ export default {
           this.cache.index = 0
           this.holder.area.y = 0
         } else {
-          const rect = this.cache.flexRects.find(r => r.fy <= mou && r.ty > mou)
-          if (mou < rect.ox) {
+          let rect = this.cache.flexRects.find(r => r.fy <= mou && r.ty > mou)
+          if (rect == null) rect = this.cache.flexRects[this.cache.flexRects.length - 1]
+          if (mou < rect.oy) {
             this.cache.index = rect.ind
-            this.holder.area.x = rect.fy - pre / 2
+            this.holder.area.y = rect.fy - pre / 2
           } else {
             this.cache.index = rect.ind + 1
-            this.holder.area.x = rect.ty - pre / 2
+            this.holder.area.y = rect.ty - pre / 2
           }
         }
       }
