@@ -151,9 +151,11 @@ export default {
       this.roots.y = rect.top + window.scrollY
     },
     onDragEnter(evt) {
+      if (!this.moveAble && !this.pushAble) return
       this.rootPositionListen()
       this.setCache()
       this.resetHolderArea()
+      this.initFlexRects()
       this.related.dragging = true
     },
     onDragOver(evt) {
@@ -183,11 +185,24 @@ export default {
         this.setItemProp(item, 'itemw', this.holder.itemw, true)
         this.setItemProp(item, 'itemh', this.holder.itemh, true)
         if (this.curr.rootId !== this.roots.id) {
-          this.list.push(item)
+          if (this.layout === 'grid') {
+            this.list.push(item)
+          } else {
+            if (this.cache.index === this.list.length) {
+              this.list.push(item)
+            } else {
+              this.list.splice(this.cache.index, 0, item)
+            }
+          }
           Kit.setLocal(Common.LOCAL_KEY_STAT, {
             rootId: this.roots.id,
             moved: true
           })
+        } else {
+          if (this.cache.index !== this.curr.index) {
+            this.list.splice(this.curr.index, 1)
+            this.list.splice(this.cache.index, 0, item)
+          }
         }
       }
       this.related.dragging = false
@@ -228,10 +243,77 @@ export default {
       }
       this.holder.area.trsi = 0.3
     },
+    initFlexRects() {
+      if (this.layout !== 'grid') {
+        const items = [...this.roots.el.querySelectorAll('.ez-drag-layout-item')]
+        let rects = items.map((item, ind) => {
+          const box = item.getBoundingClientRect()
+          if (box.width === 0 && box.height === 0) return null
+          const x = item.offsetLeft - this.itemMargin / 2
+          const y = item.offsetTop - this.itemMargin / 2
+          const w = box.width + this.itemMargin
+          const h = box.height + this.itemMargin
+          return {
+            ind,
+            fx: x,
+            fy: y,
+            tx: x + w,
+            ty: y + h,
+            ox: x + w / 2,
+            oy: y + h / 2
+          }
+        })
+        this.cache.flexRects = [...rects.filter(r => r !== null)]
+      }
+    },
     placeholderFlex(evt) {
       this.holder.vali = true
-      this.holder.itemw = this.holder.mask.w = this.holder.area.w = this.cache.itemw || 300
-      this.holder.itemh = this.holder.mask.h = this.holder.area.h = this.cache.itemh || 200
+      let pre = 100
+      let mousePos = [evt.clientX - this.roots.x, evt.clientY - this.roots.y]
+      let holderw, holderh, diff
+      if (this.layout === 'flex' && this.flexDir === 'row') {
+        const mou = mousePos[0]
+        holderw = pre
+        holderh = this.roots.height
+        diff = Math.max(0, Math.min(this.roots.width - pre, mou - pre / 2))
+        this.holder.mask.x = diff
+        this.holder.mask.y = this.holder.area.y = 0
+        if (this.cache.flexRects.length == 0) {
+          this.cache.index = 0
+          this.holder.area.x = 0
+        } else {
+          const rect = this.cache.flexRects.find(r => r.fx <= mou && r.tx > mou)
+          if (mou < rect.ox) {
+            this.cache.index = rect.ind
+            this.holder.area.x = rect.fx - pre / 2
+          } else {
+            this.cache.index = rect.ind + 1
+            this.holder.area.x = rect.tx - pre / 2
+          }
+        }
+      } else {
+        const mou = mousePos[1]
+        holderw = this.roots.width
+        holderh = pre
+        diff = Math.max(0, Math.min(this.roots.height - pre, mou - pre / 2))
+        this.holder.mask.x = this.holder.area.x = 0
+        this.holder.mask.y = diff
+        if (this.cache.flexRects.length == 0) {
+          this.cache.index = 0
+          this.holder.area.y = 0
+        } else {
+          const rect = this.cache.flexRects.find(r => r.fy <= mou && r.ty > mou)
+          if (mou < rect.ox) {
+            this.cache.index = rect.ind
+            this.holder.area.x = rect.fy - pre / 2
+          } else {
+            this.cache.index = rect.ind + 1
+            this.holder.area.x = rect.ty - pre / 2
+          }
+        }
+      }
+      this.holder.mask.w = this.holder.area.w = holderw
+      this.holder.mask.h = this.holder.area.h = holderh
     },
     placeholderGrid(evt) {
       let insGridw = this.cache.gridw

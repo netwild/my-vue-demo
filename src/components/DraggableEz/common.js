@@ -141,6 +141,8 @@ function getWrapData() {
     },
     //当前项目的关键信息（从原始信息中提取，方便处理）
     cache: {
+      flexRects: [],
+      index: -1,
       gridx: null,
       gridy: null,
       gridw: null,
