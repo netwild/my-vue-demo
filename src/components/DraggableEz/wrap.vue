@@ -201,6 +201,7 @@ export default {
         } else {
           if (this.cache.index !== this.curr.index) {
             this.list.splice(this.curr.index, 1)
+            if (this.curr.index < this.cache.index) this.cache.index -= 1
             this.list.splice(this.cache.index, 0, item)
           }
         }
@@ -249,26 +250,27 @@ export default {
         let rects = items.map((item, ind) => {
           const box = item.getBoundingClientRect()
           if (box.width === 0 && box.height === 0) return null
-          const x = item.offsetLeft - this.itemMargin / 2
-          const y = item.offsetTop - this.itemMargin / 2
-          const w = box.width + this.itemMargin
-          const h = box.height + this.itemMargin
+          const x = parseInt(item.offsetLeft - this.itemMargin / 2)
+          const y = parseInt(item.offsetTop - this.itemMargin / 2)
+          const w = parseInt(box.width + this.itemMargin)
+          const h = parseInt(box.height + this.itemMargin)
           return {
             ind,
             fx: x,
             fy: y,
             tx: x + w,
             ty: y + h,
-            ox: x + w / 2,
-            oy: y + h / 2
+            ox: parseInt(x + w / 2),
+            oy: parseInt(y + h / 2)
           }
         })
         this.cache.flexRects = [...rects.filter(r => r !== null)]
+        console.log(this.cache.flexRects)
       }
     },
     placeholderFlex(evt) {
       this.holder.vali = true
-      let pre = 100
+      let pre = 50
       let mousePos = [evt.clientX - this.roots.x, evt.clientY - this.roots.y]
       let holderw, holderh, diff
       if (this.layout === 'flex' && this.flexDir === 'row') {
@@ -278,18 +280,25 @@ export default {
         diff = Math.max(0, Math.min(this.roots.width - pre, mou - pre / 2))
         this.holder.mask.x = diff
         this.holder.mask.y = this.holder.area.y = 0
-        if (this.cache.flexRects.length == 0) {
+        const len = this.cache.flexRects.length
+        if (len == 0) {
           this.cache.index = 0
           this.holder.area.x = 0
         } else {
-          let rect = this.cache.flexRects.find(r => r.fx <= mou && r.tx > mou)
-          if (rect == null) rect = this.cache.flexRects[this.cache.flexRects.length - 1]
+          let rect
+          if (mou < this.cache.flexRects[0].fx) rect = this.cache.flexRects[0]
+          else if (mou > this.cache.flexRects[len - 1].tx) rect = this.cache.flexRects[len - 1]
+          else rect = this.cache.flexRects.find(r => mou >= r.fx && mou <= r.tx)
           if (mou < rect.ox) {
-            this.cache.index = rect.ind
-            this.holder.area.x = rect.fx - pre / 2
-          } else {
-            this.cache.index = rect.ind + 1
-            this.holder.area.x = rect.tx - pre / 2
+            this.holder.area.x = Math.max(0, rect.fx - pre / 2)
+            if (this.roots.id === this.curr.rootId && this.curr.index === rect.ind - 1)
+              this.cache.index = rect.ind - 1
+            else this.cache.index = rect.ind
+          } else if (mou >= rect.ox) {
+            this.holder.area.x = Math.min(this.roots.width - pre, rect.tx - pre / 2)
+            if (this.roots.id === this.curr.rootId && this.curr.index === rect.ind)
+              this.cache.index = rect.ind
+            else this.cache.index = rect.ind + 1
           }
         }
       } else {
@@ -299,18 +308,25 @@ export default {
         diff = Math.max(0, Math.min(this.roots.height - pre, mou - pre / 2))
         this.holder.mask.x = this.holder.area.x = 0
         this.holder.mask.y = diff
-        if (this.cache.flexRects.length == 0) {
+        const len = this.cache.flexRects.length
+        if (len == 0) {
           this.cache.index = 0
           this.holder.area.y = 0
         } else {
-          let rect = this.cache.flexRects.find(r => r.fy <= mou && r.ty > mou)
-          if (rect == null) rect = this.cache.flexRects[this.cache.flexRects.length - 1]
+          let rect
+          if (mou < this.cache.flexRects[0].fy) rect = this.cache.flexRects[0]
+          else if (mou > this.cache.flexRects[len - 1].ty) rect = this.cache.flexRects[len - 1]
+          else rect = this.cache.flexRects.find(r => mou >= r.fy && mou <= r.ty)
           if (mou < rect.oy) {
-            this.cache.index = rect.ind
-            this.holder.area.y = rect.fy - pre / 2
-          } else {
-            this.cache.index = rect.ind + 1
-            this.holder.area.y = rect.ty - pre / 2
+            this.holder.area.y = Math.max(0, rect.fy - pre / 2)
+            if (this.roots.id === this.curr.rootId && this.curr.index === rect.ind - 1)
+              this.cache.index = rect.ind - 1
+            else this.cache.index = rect.ind
+          } else if (mou >= rect.oy) {
+            this.holder.area.y = Math.min(this.roots.height - pre, rect.ty - pre / 2)
+            if (this.roots.id === this.curr.rootId && this.curr.index === rect.ind)
+              this.cache.index = rect.ind
+            else this.cache.index = rect.ind + 1
           }
         }
       }
