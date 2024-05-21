@@ -159,6 +159,7 @@ function getWrapData() {
       gridh: null,
       itemw: null,
       itemh: null,
+      pre: 50,
       //占位符边框
       mask: {
         x: 0,

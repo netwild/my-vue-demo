@@ -153,9 +153,9 @@ export default {
     onDragEnter(evt) {
       if (!this.moveAble && !this.pushAble) return
       this.rootPositionListen()
+      this.initFlexRects()
       this.setCache()
       this.resetHolderArea()
-      this.initFlexRects()
       this.related.dragging = true
     },
     onDragOver(evt) {
@@ -169,6 +169,7 @@ export default {
         if (this.curr.rootId === this.roots.id) {
           evt.preventDefault()
           if (this.layout === 'grid') this.resizeholderGrid(evt)
+          else this.resizeholderFlex(evt)
         }
       }
     },
@@ -228,19 +229,20 @@ export default {
       }
     },
     resetHolderArea() {
+      if (this.curr.rootId !== this.roots.id) return
       this.holder.area.trsi = 0
       if (this.layout === 'grid') {
-        if (this.curr.rootId === this.roots.id) {
-          this.holder.area.x = (this.cache.gridx - 1) * this.gridColw
-          this.holder.area.y = (this.cache.gridy - 1) * this.gridRowh
-          this.holder.area.w = this.cache.gridw * this.gridColw
-          this.holder.area.h = this.cache.gridh * this.gridRowh
-        } else {
-          this.holder.area.x = 0
-          this.holder.area.y = 0
-          this.holder.area.w = this.gridColsDef * this.gridColw
-          this.holder.area.h = this.gridRowsDef * this.gridRowh
-        }
+        this.holder.area.x = (this.cache.gridx - 1) * this.gridColw
+        this.holder.area.y = (this.cache.gridy - 1) * this.gridRowh
+        this.holder.area.w = this.cache.gridw * this.gridColw
+        this.holder.area.h = this.cache.gridh * this.gridRowh
+      } else {
+        let index = this.curr.index
+        let rect = this.cache.flexRects[index]
+        this.holder.mask.x = this.holder.area.x = rect.left
+        this.holder.mask.y = this.holder.area.y = rect.top
+        this.holder.mask.w = this.holder.area.w = rect.box.width
+        this.holder.mask.h = this.holder.area.h = rect.box.height
       }
       this.holder.area.trsi = 0.3
     },
@@ -250,12 +252,17 @@ export default {
         let rects = items.map((item, ind) => {
           const box = item.getBoundingClientRect()
           if (box.width === 0 && box.height === 0) return null
+          const top = item.offsetTop
+          const left = item.offsetLeft
           const x = parseInt(item.offsetLeft - this.itemMargin / 2)
           const y = parseInt(item.offsetTop - this.itemMargin / 2)
           const w = parseInt(box.width + this.itemMargin)
           const h = parseInt(box.height + this.itemMargin)
           return {
             ind,
+            box,
+            top,
+            left,
             fx: x,
             fy: y,
             tx: x + w,
@@ -265,12 +272,11 @@ export default {
           }
         })
         this.cache.flexRects = [...rects.filter(r => r !== null)]
-        console.log(this.cache.flexRects)
       }
     },
     placeholderFlex(evt) {
       this.holder.vali = true
-      let pre = 50
+      let pre = this.holder.pre
       let mousePos = [evt.clientX - this.roots.x, evt.clientY - this.roots.y]
       let holderw, holderh, diff
       if (this.layout === 'flex' && this.flexDir === 'row') {
@@ -332,6 +338,15 @@ export default {
       }
       this.holder.mask.w = this.holder.area.w = holderw
       this.holder.mask.h = this.holder.area.h = holderh
+    },
+    resizeholderFlex(evt) {
+      let index = this.curr.index
+      let rect = this.cache.flexRects[index]
+      let mousePos = [evt.clientX - this.roots.x, evt.clientY - this.roots.y]
+      let width = Math.max(1, Math.min(this.roots.width - rect.left, mousePos[0] - rect.left))
+      let height = Math.max(1, Math.min(this.roots.height - rect.top, mousePos[1] - rect.top))
+      this.holder.itemw = this.holder.mask.w = this.holder.area.w = width
+      this.holder.itemh = this.holder.mask.h = this.holder.area.h = height
     },
     placeholderGrid(evt) {
       let insGridw = this.cache.gridw

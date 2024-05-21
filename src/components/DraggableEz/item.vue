@@ -168,10 +168,11 @@ export default {
         eventType: 'resize'
       }
       Kit.setLocal(Common.LOCAL_KEY_DATA, localBeforeData)
-      this.opacity = this.el.style.opacity
+      this.$parent.initFlexRects()
       this.$parent.setCache()
       this.$parent.resetHolderArea()
-      setTimeout(() => (this.el.style.opacity = 0.5), 0)
+      this.opacity = this.el.style.opacity
+      setTimeout(() => (this.el.style.opacity = 0.3), 0)
     },
     onResizeEnd(evt) {
       this.el.style.opacity = this.opacity
