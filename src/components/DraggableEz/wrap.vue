@@ -93,12 +93,15 @@ export default {
         transform: `translate(${this.holder.area.x}px, ${this.holder.area.y}px)`
       }
     },
+    inside() {
+      return this.curr.rootId === this.roots.id
+    },
     gridUseful() {
       let map = Array(this.gridRows)
         .fill()
         .map(() => Array(this.gridCols).fill(0))
       this.list.forEach((item, i) => {
-        if (this.curr.rootId !== this.roots.id || this.curr.index !== i) {
+        if (!this.inside || this.curr.index !== i) {
           const gx = this.getItemProp(item, 'gridx')
           const gy = this.getItemProp(item, 'gridy')
           const gw = this.getItemProp(item, 'gridw')
@@ -166,7 +169,7 @@ export default {
           else this.placeholderFlex(evt)
         }
       } else if (this.curr.eventType === 'resize') {
-        if (this.curr.rootId === this.roots.id) {
+        if (this.inside) {
           evt.preventDefault()
           if (this.layout === 'grid') this.resizeholderGrid(evt)
           else this.resizeholderFlex(evt)
@@ -177,15 +180,22 @@ export default {
       this.related.dragging = false
     },
     onDrop(evt) {
-      let item = this.curr.rootId === this.roots.id ? this.list[this.curr.index] : this.curr.item
-      if (this.holder.vali) {
-        this.setItemProp(item, 'gridx', this.holder.gridx, true)
-        this.setItemProp(item, 'gridy', this.holder.gridy, true)
-        this.setItemProp(item, 'gridw', this.holder.gridw, true)
-        this.setItemProp(item, 'gridh', this.holder.gridh, true)
-        this.setItemProp(item, 'itemw', this.holder.itemw, true)
-        this.setItemProp(item, 'itemh', this.holder.itemh, true)
-        if (this.curr.rootId !== this.roots.id) {
+      this.related.dragging = false
+      if (!this.holder.vali) return
+
+      let item = this.inside ? this.list[this.curr.index] : this.curr.item
+      this.setItemProp(item, 'gridx', this.holder.gridx, true)
+      this.setItemProp(item, 'gridy', this.holder.gridy, true)
+      this.setItemProp(item, 'gridw', this.holder.gridw, true)
+      this.setItemProp(item, 'gridh', this.holder.gridh, true)
+      if (this.curr.eventType === 'move') {
+        if (this.inside) {
+          if (this.cache.index !== this.curr.index) {
+            this.list.splice(this.curr.index, 1)
+            if (this.curr.index < this.cache.index) this.cache.index -= 1
+            this.list.splice(this.cache.index, 0, item)
+          }
+        } else {
           if (this.layout === 'grid') {
             this.list.push(item)
           } else {
@@ -199,15 +209,13 @@ export default {
             rootId: this.roots.id,
             moved: true
           })
-        } else {
-          if (this.cache.index !== this.curr.index) {
-            this.list.splice(this.curr.index, 1)
-            if (this.curr.index < this.cache.index) this.cache.index -= 1
-            this.list.splice(this.cache.index, 0, item)
-          }
+        }
+      } else if (this.curr.eventType === 'resize') {
+        if (this.layout !== 'grid') {
+          this.setItemProp(item, 'itemw', this.holder.itemw, true)
+          this.setItemProp(item, 'itemh', this.holder.itemh, true)
         }
       }
-      this.related.dragging = false
     },
     setCache() {
       const localBeforeData = Kit.getLocal(Common.LOCAL_KEY_DATA)
@@ -229,7 +237,7 @@ export default {
       }
     },
     resetHolderArea() {
-      if (this.curr.rootId !== this.roots.id) return
+      if (!this.inside) return
       this.holder.area.trsi = 0
       if (this.layout === 'grid') {
         this.holder.area.x = (this.cache.gridx - 1) * this.gridColw
@@ -297,13 +305,11 @@ export default {
           else rect = this.cache.flexRects.find(r => mou >= r.fx && mou <= r.tx)
           if (mou < rect.ox) {
             this.holder.area.x = Math.max(0, rect.fx - pre / 2)
-            if (this.roots.id === this.curr.rootId && this.curr.index === rect.ind - 1)
-              this.cache.index = rect.ind - 1
+            if (this.inside && this.curr.index === rect.ind - 1) this.cache.index = rect.ind - 1
             else this.cache.index = rect.ind
           } else if (mou >= rect.ox) {
             this.holder.area.x = Math.min(this.roots.width - pre, rect.tx - pre / 2)
-            if (this.roots.id === this.curr.rootId && this.curr.index === rect.ind)
-              this.cache.index = rect.ind
+            if (this.inside && this.curr.index === rect.ind) this.cache.index = rect.ind
             else this.cache.index = rect.ind + 1
           }
         }
@@ -325,13 +331,11 @@ export default {
           else rect = this.cache.flexRects.find(r => mou >= r.fy && mou <= r.ty)
           if (mou < rect.oy) {
             this.holder.area.y = Math.max(0, rect.fy - pre / 2)
-            if (this.roots.id === this.curr.rootId && this.curr.index === rect.ind - 1)
-              this.cache.index = rect.ind - 1
+            if (this.inside && this.curr.index === rect.ind - 1) this.cache.index = rect.ind - 1
             else this.cache.index = rect.ind
           } else if (mou >= rect.oy) {
             this.holder.area.y = Math.min(this.roots.height - pre, rect.ty - pre / 2)
-            if (this.roots.id === this.curr.rootId && this.curr.index === rect.ind)
-              this.cache.index = rect.ind
+            if (this.inside && this.curr.index === rect.ind) this.cache.index = rect.ind
             else this.cache.index = rect.ind + 1
           }
         }
@@ -369,7 +373,7 @@ export default {
       this.holder.mask.w = insRectw
       this.holder.mask.h = insRecth
 
-      let item = this.curr.rootId === this.roots.id ? this.list[this.curr.index] : this.curr.item
+      let item = this.inside ? this.list[this.curr.index] : this.curr.item
       if (autoRect.w === 0 && autoRect.h === 0) {
         this.holder.vali = false
         this.holder.gridx = areaGridx

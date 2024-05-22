@@ -122,3 +122,6 @@
     }
   }
 }
+.ez-drag-curr .ez-drag-layout-root {
+  pointer-events: none !important;
+}

@@ -52,7 +52,8 @@ export default {
   data() {
     return {
       el: null,
-      opacity: null
+      opacity: null,
+      dragging: false
     }
   },
   mounted() {
@@ -88,7 +89,7 @@ export default {
       return this.getItemProp(this.item, 'gridh')
     },
     classes() {
-      return [this.enable ? 'enable' : 'disable']
+      return [this.enable ? 'enable' : 'disable', this.dragging ? 'ez-drag-curr' : '']
     },
     styles() {
       let obj = {}
@@ -106,6 +107,7 @@ export default {
       } else {
         if (Kit.notEmpty(this.itemw)) obj['width'] = `${this.itemw}px`
         if (Kit.notEmpty(this.itemh)) obj['height'] = `${this.itemh}px`
+        else if (this.wrapData.heightMode === 'screen') obj['height'] = '100%'
       }
       return obj
     }
@@ -117,6 +119,7 @@ export default {
     onDragStart(evt) {
       evt.dataTransfer.effectAllowed = 'copy'
 
+      this.dragging = true
       let curr = this.item
       if (!this.wrapData.moveAble) {
         if (Kit.notNull(this.wrapData.clone)) {
@@ -157,10 +160,12 @@ export default {
         }
         this.el.style.opacity = this.opacity
       }
+      this.dragging = false
       // this.$parent.related.dragging = false
     },
     onResizeStart(evt) {
       evt.dataTransfer.effectAllowed = 'move'
+      this.dragging = true
       const localBeforeData = {
         rootId: this.wrapData.roots.id,
         item: this.item,
@@ -176,6 +181,7 @@ export default {
     },
     onResizeEnd(evt) {
       this.el.style.opacity = this.opacity
+      this.dragging = false
       // this.$parent.related.dragging = false
     },
     onResizeEnter(evt) {
